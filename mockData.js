@@ -669,47 +669,315 @@ const mockData = {
       teacher: "दिनेश सर (Dinesh Sir)",
       chapters: [
         {
-          id: "eng-ch1",
-          title: "Prose - Chapter 1: A Letter to God",
-          lectures: [],
-          notes: [{ id: "eng-ch1-n1", title: "NCERT Summary - A Letter to God", content: "<h3>A Letter to God (G.L. Fuentes)</h3><p>Lencho was a hardworking farmer whose house was on the crest of a low hill. A severe hailstorm destroyed his entire corn crop. He had immense faith in God, so he wrote a letter asking God for 100 pesos. The postmaster saw the letter and, to keep Lencho's faith alive, collected 70 pesos from his employees and sent it to Lencho.</p>" }],
-          quiz: {
-            id: "eng-ch1-q",
-            title: "A Letter to God - Mock Test",
-            questions: [
-              { question: "Who is the main character in 'A Letter to God'?", options: ["Lencho", "Postmaster", "Hari Singh", "Wanda"], correctIndex: 0, explanation: "Lencho, a poor but faithful farmer, is the protagonist of the story." },
-              { question: "How much money did Lencho ask for in his letter to God?", options: ["50 Pesos", "100 Pesos", "70 Pesos", "1000 Pesos"], correctIndex: 1, explanation: "Lencho asked for 100 pesos to sow his field again, but received only 70 pesos." }
-            ]
-          }
+                "id": "eng-pr-ch1",
+                "title": "Prose - Ch 1: A Letter to God",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch1-n1",
+                                "title": "NCERT Summary & Word Meanings - A Letter to God",
+                                "content": "<h3>Prose - Chapter 1: A Letter to God</h3>\n      <p><strong>Summary:</strong> Lencho, a dedicated farmer, loses his crops to a hailstorm. With immense faith in God, he writes a letter asking for 100 pesos. The postmaster collects 70 pesos to help him, but Lencho calls the post office employees 'a bunch of crooks' thinking they stole the rest.</p>\n      <p><strong>Vocabulary:</strong><br>\n      - Crest: Top of a hill<br>\n      - Pestle/Hailstones: Frozen rain drops<br>\n      - Solitary: Single/alone</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-pr-ch1-q",
+                        "title": "A Letter to God - Mock Test",
+                        "questions": [
+                                {
+                                        "question": "What did Lencho compare the large raindrops with?",
+                                        "options": [
+                                                "New coins",
+                                                "Pearls",
+                                                "Diamonds",
+                                                "Stone"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "Lencho compared raindrops to new coins (10 cents and 5 cents)."
+                                }
+                        ]
+                }
         },
         {
-          id: "eng-ch2",
-          title: "Poetry - Chapter 1: Dust of Snow",
-          lectures: [],
-          notes: [{ id: "eng-ch2-n1", title: "Poem Analysis - Dust of Snow", content: "<h3>Dust of Snow (Robert Frost)</h3><p>The poem describes a simple moment that has a large impact. A crow shakes off dust of snow from a hemlock tree onto the poet, changing his sad mood into a joyful one. Robert Frost teaches us that even small positive natural occurrences can heal our minds.</p>" }],
-          quiz: {
-            id: "eng-ch2-q",
-            title: "Dust of Snow - Mock Test",
-            questions: [
-              { question: "Who is the poet of 'Dust of Snow'?", options: ["Leslie Norris", "Robert Frost", "John Berryman", "William Wordsworth"], correctIndex: 1, explanation: "The poem is written by the famous American poet Robert Frost." }
-            ]
-          }
+                "id": "eng-pr-ch2",
+                "title": "Prose - Ch 2: Long Walk to Freedom",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch2-n1",
+                                "title": "NCERT Summary - Nelson Mandela",
+                                "content": "<h3>Prose - Chapter 2: Nelson Mandela: Long Walk to Freedom</h3>\n      <p><strong>Summary:</strong> This chapter is an extract from Mandela's autobiography. It describes the historic inauguration ceremony of the first democratic, non-racial government of South Africa in 1994, and his thoughts on oppression and freedom.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-pr-ch2-q",
+                        "title": "Nelson Mandela - Test",
+                        "questions": [
+                                {
+                                        "question": "According to Mandela, what is a nation's greatest wealth?",
+                                        "options": [
+                                                "Minerals",
+                                                "Gems",
+                                                "Its people",
+                                                "Gold"
+                                        ],
+                                        "correctIndex": 2,
+                                        "explanation": "Mandela believed that a nation's greatest wealth is its fine and honest citizens."
+                                }
+                        ]
+                }
         },
         {
-          id: "eng-ch3",
-          title: "Grammar - Active/Passive & Narration",
-          lectures: [],
-          notes: [{ id: "eng-ch3-n1", title: "English Grammar - Voice Rules", content: "<h3>Active and Passive Voice Rules</h3><p><strong>Rule 1:</strong> The object of the active sentence becomes the subject of the passive sentence.</p><p><strong>Rule 2:</strong> Always use the 3rd form of the verb (past participle) in passive sentences.</p><p><strong>Example:</strong> Active: 'He writes a letter.' -> Passive: 'A letter is written by him.'</p>" }],
-          quiz: {
-            id: "eng-ch3-q",
-            title: "English Grammar - Mock Test",
-            questions: [
-              { question: "Change into Passive Voice: 'Ram killed a snake.'", options: ["A snake is killed by Ram.", "A snake was killed by Ram.", "A snake has been killed by Ram.", "A snake was kill by Ram."], correctIndex: 1, explanation: "Simple Past tense changes to was/were + V3 in Passive Voice." },
-              { question: "Choose the correct indirect narration for: He said, 'I am ill.'", options: ["He said that he was ill.", "He said that I was ill.", "He told that he was ill.", "He said he is ill."], correctIndex: 0, explanation: "Present continuous 'am' changes to past 'was' in indirect speech." }
-            ]
-          }
+                "id": "eng-pr-ch3",
+                "title": "Prose - Ch 3: Two Stories about Flying",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch3-n1",
+                                "title": "NCERT Summary - Flying Stories",
+                                "content": "<h3>Prose - Chapter 3: Two Stories about Flying</h3>\n      <p><strong>Part 1: His First Flight:</strong> The story of a young seagull who is afraid to fly but overcomes fear due to hunger.<br>\n      <strong>Part 2: Black Aeroplane:</strong> A pilot is guided out of a storm by a mysterious black plane.</p>"
+                        }
+                ]
+        },
+        {
+                "id": "eng-pr-ch4",
+                "title": "Prose - Ch 4: From the Diary of Anne Frank",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch4-n1",
+                                "title": "NCERT Summary - Anne Frank",
+                                "content": "<h3>Prose - Chapter 4: From the Diary of Anne Frank</h3>\n      <p><strong>Summary:</strong> Diary entries of a 13-year-old Jewish girl hiding from Nazis. She writes about her loneliness, her classmates, and her teacher Mr. Keesing who assigns essays as punishment.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-pr-ch4-q",
+                        "title": "Anne Frank - Test",
+                        "questions": [
+                                {
+                                        "question": "What was the name of Anne Frank's diary?",
+                                        "options": [
+                                                "Kitty",
+                                                "Miffy",
+                                                "Dear diary",
+                                                "Tommy"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "Anne Frank named her diary 'Kitty'."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-pr-ch5",
+                "title": "Prose - Ch 5: Glimpses of India",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch5-n1",
+                                "title": "NCERT Summary - Glimpses of India",
+                                "content": "<h3>Glimpses of India</h3><p>Includes three parts: A Baker from Goa, Coorg (famous for coffee), and Tea from Assam.</p>"
+                        }
+                ]
+        },
+        {
+                "id": "eng-pr-ch6",
+                "title": "Prose - Ch 6: Madam Rides the Bus",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-pr-ch6-n1",
+                                "title": "NCERT Summary - Madam Rides the Bus",
+                                "content": "<h3>Madam Rides the Bus</h3><p>Story of Valli, an 8-year-old girl who fulfills her dream of riding a bus to the town and learns about life and death.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-pr-ch6-q",
+                        "title": "Madam Rides the Bus - Test",
+                        "questions": [
+                                {
+                                        "question": "What was Valli's full name?",
+                                        "options": [
+                                                "Vallikkannan",
+                                                "Valliammai",
+                                                "Valli",
+                                                "Vali"
+                                        ],
+                                        "correctIndex": 1,
+                                        "explanation": "Valli's full name was Valliammai."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-po-ch1",
+                "title": "Poetry - Dust of Snow",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-po-ch1-n1",
+                                "title": "Poem Analysis - Dust of Snow",
+                                "content": "<h3>Dust of Snow (Robert Frost)</h3><p>A simple poem where a crow shakes snow from a Hemlock tree onto the poet, lifting his mood.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-po-ch1-q",
+                        "title": "Dust of Snow - Test",
+                        "questions": [
+                                {
+                                        "question": "What did the crow shake down on the poet?",
+                                        "options": [
+                                                "Dust of snow",
+                                                "Fruit",
+                                                "Leaves",
+                                                "Mud"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "The crow shook down dust of snow."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-po-ch2",
+                "title": "Poetry - Fire and Ice",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-po-ch2-n1",
+                                "title": "Poem Analysis - Fire and Ice",
+                                "content": "<h3>Fire and Ice (Robert Frost)</h3><p>Fire symbolizes desire, and ice symbolizes hatred. Both are capable of destroying the world.</p>"
+                        }
+                ]
+        },
+        {
+                "id": "eng-po-ch3",
+                "title": "Poetry - A Tiger in the Zoo",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-po-ch3-n1",
+                                "title": "Poem Analysis",
+                                "content": "<h3>A Tiger in the Zoo</h3><p>Contrasts the life of a caged tiger in a zoo with a free tiger in the wild forest.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-po-ch3-q",
+                        "title": "A Tiger in the Zoo - Test",
+                        "questions": [
+                                {
+                                        "question": "Where should the tiger be lurking according to the poet?",
+                                        "options": [
+                                                "In shadow near water hole",
+                                                "In the cage",
+                                                "In the zoo",
+                                                "On the road"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "The free tiger should be lurking in the shadow near the water hole to catch deer."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-sup-ch1",
+                "title": "Supplementary - Ch 1: A Triumph of Surgery",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-sup-ch1-n1",
+                                "title": "NCERT Summary - Triumph of Surgery",
+                                "content": "<h3>A Triumph of Surgery</h3><p>Story of Tricki, a small dog overfed by rich mistress Mrs. Pumphrey, cured by vet Dr. Herriot by fasting and exercise.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-sup-ch1-q",
+                        "title": "Triumph of Surgery - Test",
+                        "questions": [
+                                {
+                                        "question": "Who was Tricki?",
+                                        "options": [
+                                                "A dog",
+                                                "A cat",
+                                                "A monkey",
+                                                "The vet"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "Tricki was Mrs. Pumphrey's pampered pet dog."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-sup-ch2",
+                "title": "Supplementary - Ch 2: The Thief's Story",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-sup-ch2-n1",
+                                "title": "NCERT Summary - Thief's Story",
+                                "content": "<h3>The Thief's Story (Ruskin Bond)</h3><p>15-year-old thief Hari Singh is hired by Anil, who teaches him to read and write. Hari robs Anil but returns due to his conscience.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-sup-ch2-q",
+                        "title": "The Thief's Story - Test",
+                        "questions": [
+                                {
+                                        "question": "What was the name of the writer in the story?",
+                                        "options": [
+                                                "Anil",
+                                                "Hari Singh",
+                                                "Ruskin Bond",
+                                                "Hari"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "Anil was the 25-year-old writer who hired the thief."
+                                }
+                        ]
+                }
+        },
+        {
+                "id": "eng-sup-ch3",
+                "title": "Supplementary - Ch 3: Footprints without Feet",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-sup-ch3-n1",
+                                "title": "NCERT Summary - Footprints without Feet",
+                                "content": "<h3>Footprints without Feet</h3><p>Griffin, an eccentric scientist, discovers a drug to become invisible. He misuses his power by stealing and committing robberies.</p>"
+                        }
+                ]
+        },
+        {
+                "id": "eng-sup-ch4",
+                "title": "Supplementary - Ch 4: Bholi",
+                "lectures": [],
+                "notes": [
+                        {
+                                "id": "eng-sup-ch4-n1",
+                                "title": "NCERT Summary - Bholi",
+                                "content": "<h3>Bholi (K.A. Abbas)</h3><p>Sulekha, called Bholi, stammers and has pockmarks. Her school teacher encourages her. She refuses to marry greedy Bishamber, choosing to support her parents.</p>"
+                        }
+                ],
+                "quiz": {
+                        "id": "eng-sup-ch4-q",
+                        "title": "Bholi - Test",
+                        "questions": [
+                                {
+                                        "question": "What was Bholi's real name?",
+                                        "options": [
+                                                "Sulekha",
+                                                "Radha",
+                                                "Champa",
+                                                "Kamla"
+                                        ],
+                                        "correctIndex": 0,
+                                        "explanation": "Bholi's real name was Sulekha."
+                                }
+                        ]
+                }
         }
-      ]
+]
     }
   }
 };
