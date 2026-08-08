@@ -3,7 +3,7 @@
 // ==========================================================================
 let API_URL = window.location.origin;
 if (window.location.protocol === 'file:') {
-  API_URL = 'http://10.166.170.210:3000';
+  API_URL = 'https://gyanoday-learning-app.onrender.com';
 }
 
 // Automatic PWA Install Prompt Trigger

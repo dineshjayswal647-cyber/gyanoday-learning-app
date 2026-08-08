@@ -107,7 +107,7 @@ dependencies {
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:roundIcon="@drawable/logo"
-        android:label="DJ Academy"
+        android:label="DJ Academy Learning"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="true">
         <activity
