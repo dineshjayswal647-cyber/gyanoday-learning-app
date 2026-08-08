@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJ Academy - UP Board Class 10 Hindi Medium</title>
+  <!-- Google Fonts: Outfit for English/Branding, Hind for Hindi text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome for beautiful icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff6f00">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered!'))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Sidebar (Desktop Navigation) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="logo.jpg" alt="DJ Logo" class="brand-logo">
+      <div class="brand-info">
+        <span class="brand-name">DJ ACADEMY</span>
+        <span class="brand-tagline">कक्षा 10 यूपी बोर्ड</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-item active" data-tab="dashboard">
+        <i class="fa-solid fa-house"></i>
+        <span>होम (Dashboard)</span>
+      </a>
+      <a href="#batches" class="nav-item" data-tab="batches">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>संकल्प बैच (Batches)</span>
+      </a>
+      <a href="#live" class="nav-item" data-tab="live">
+        <i class="fa-solid fa-circle-play"></i>
+        <span>लाइव क्लास (Live)</span>
+        <span class="badge-live">LIVE</span>
+      </a>
+      <a href="#notes" class="nav-item" data-tab="notes">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>फ्री नोट्स (PDFs)</span>
+      </a>
+      <a href="#quiz" class="nav-item" data-tab="quiz">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>क्विज़ टेस्ट (Tests)</span>
+      </a>
+      <a href="#profile" class="nav-item" data-tab="profile">
+        <i class="fa-solid fa-user"></i>
+        <span>मेरा प्रोफाइल</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">DJ</div>
+        <div class="user-meta">
+          <span class="user-name">दिनेश जायसवाल</span>
+          <span class="user-role">कक्षा 10 छात्र</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+    
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="page-title" id="pageTitle">होम (Dashboard)</h1>
+      </div>
+      <div class="header-right">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="क्लास, नोट्स या टेस्ट खोजें...">
+        </div>
+        <div class="header-actions">
+          <button class="action-btn notification-btn" id="notificationBtn">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+          </button>
+          
+          <!-- Notification Dropdown Menu -->
+          <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
+            <div class="nd-header">
+              <span>🔔 सूचनाएं (Notifications)</span>
+              <button class="nd-clear-btn" onclick="clearLocalNotifications()">साफ़ करें</button>
+            </div>
+            <div class="nd-body" id="notificationList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="theme-toggle" id="themeToggle">
+            <i class="fa-solid fa-moon"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- App Content Pages (Views) -->
+    <div class="content-view" id="contentView">
+      
+      <!-- ================= DASHBOARD SCREEN ================= -->
+      <section class="tab-content active" id="view-dashboard">
+        <!-- Hero Image Banner -->
+        <div class="hero-image-banner-container" onclick="switchTab('batches')" style="cursor: pointer; margin-bottom: 1.2rem; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+          <img src="banner.jpg" alt="Sankalp Batch 2027 Banner" style="width: 100%; height: auto; display: block; object-fit: cover;">
+        </div>
+
+        <!-- Quick Actions Navigation Grid -->
+        <h3 class="section-title">त्वरित मार्गदर्शिका (Quick Navigation)</h3>
+        <div class="navigation-grid">
+          <div class="nav-card" onclick="openDirectSubject('science')">
+            <div class="nav-card-icon sci-color">🧪</div>
+            <h4>विज्ञान</h4>
+            <p>चैप्टर-वार वीडियोस</p>
+          </div>
+          <div class="nav-card" onclick="openDirectSubject('maths')">
+            <div class="nav-card-icon math-color">📐</div>
+            <h4>गणित</h4>
+            <p>फार्मूला व क्लासेज</p>
+          </div>
+          <div class="nav-card" onclick="openDirectSubject('social-science')">
+            <div class="nav-card-icon sst-color">🌍</div>
+            <h4>सामाजिक विज्ञान</h4>
+            <p>महत्वपूर्ण प्रश्न</p>
+          </div>
+          <div class="nav-card" onclick="openDirectSubject('hindi')">
+            <div class="nav-card-icon hindi-color">✍️</div>
+            <h4>हिन्दी</h4>
+            <p>गद्यांश व व्याकरण</p>
+          </div>
+          <div class="nav-card" onclick="openDirectSubject('english')">
+            <div class="nav-card-icon eng-color">📖</div>
+            <h4>अंग्रेजी</h4>
+            <p>ग्रामर व चैप्टर्स</p>
+          </div>
+          <div class="nav-card" onclick="switchTab('live')">
+            <div class="nav-card-icon live-color">🔴</div>
+            <h4>लाइव क्लास</h4>
+            <p>दिनेश सर के साथ</p>
+          </div>
+        </div>
+
+        <!-- Ongoing Live Class Card -->
+        <div class="dashboard-split">
+          <div class="dashboard-left">
+            <h3 class="section-title">🔴 चालू लाइव क्लास (Ongoing Live Classes)</h3>
+            <div class="live-class-card" id="dashboardLiveCard">
+              <!-- Dynamically populated via app.js -->
+            </div>
+
+            </div>
+
+            <h3 class="section-title" style="margin-top: 2rem;">📅 साप्ताहिक क्लास समय सारणी (Weekly Timetable)</h3>
+            <div class="schedule-grid" id="dashboardScheduleGrid" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+              <!-- Dynamically populated via app.js -->
+            </div>
+          </div>
+
+          <div class="dashboard-right">
+            <h3 class="section-title">🏆 दैनिक क्विज़ अभ्यास</h3>
+            <div class="daily-quiz-card">
+              <div class="dq-header">
+                <i class="fa-solid fa-award"></i>
+                <div>
+                  <h4>आज का मॉक टेस्ट</h4>
+                  <p>विज्ञान अध्याय 1 - रासायनिक अभिक्रियाएं</p>
+                </div>
+              </div>
+              <p class="dq-desc">अपनी तैयारी का आकलन करने के लिए आज का 3-प्रश्नों का छोटा टेस्ट दें और अपना स्कोर जानें।</p>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 1.5rem;">⏱️ आपकी पढ़ाई का समय (App Usage)</h3>
+            <div class="daily-quiz-card" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 14px; border-radius: 16px;">
+              <div class="dq-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <i class="fa-solid fa-clock" style="color: var(--accent-saffron); font-size: 20px;"></i>
+                <div>
+                  <h4 style="margin: 0; font-size: 13.5px; font-weight: 700; color: var(--text-primary);">पढ़ाई का विश्लेषक (Timer)</h4>
+                  <p id="dashboardStudyTime" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-secondary);">आज: 0 मिनट | कुल: 0 मिनट</p>
+                </div>
+              </div>
+              <p class="dq-desc" style="font-size: 10.5px; line-height: 1.4; color: var(--text-secondary); margin: 0;">यूपी बोर्ड परीक्षा 2027 में 95%+ अंक प्राप्त करने के लिए नियमित रूप से पढ़ाई करें! 🎯</p>
+            </div>
+
+            <h3 class="section-title">📢 महत्वपूर्ण घोषणाएं</h3>
+            <div class="announcements-list">
+              <div class="announcement-item">
+                <span class="ann-date">आज, 04:00 PM</span>
+                <h4>गणित का नया अध्याय 'द्विघात समीकरण' आज शाम 6:00 बजे लाइव होगा!</h4>
+                <p>सभी छात्र रफ कॉपी और पेन लेकर तैयार रहें।</p>
+              </div>
+              <div class="announcement-item">
+                <span class="ann-date">कल, 11:00 AM</span>
+                <h4>विज्ञान अध्याय 1 के हस्तलिखित नोट्स PDF अपलोड कर दिए गए हैं।</h4>
+                <p>नोट्स सेक्शन में जाकर डाउनलोड करें या पढ़ें।</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BATCHES SCREEN ================= -->
+      <section class="tab-content" id="view-batches">
+        <div class="batch-intro-container" id="batchListSection">
+          <!-- Batches catalog loaded dynamically -->
+        </div>
+
+        <!-- Batch Classroom Detail View (Hidden initially) -->
+        <div class="batch-classroom-view" id="batchClassroomSection" style="display: none;">
+          <button class="back-btn" onclick="showBatchList()">
+            <i class="fa-solid fa-arrow-left"></i> सभी बैचेस पर वापस जाएं
+          </button>
+          
+          <div class="classroom-header">
+            <h2 id="classroomTitle">संकल्प बैच - क्लासरूम</h2>
+            <p id="classroomSub">UP Board Class 10 Hindi Medium</p>
+          </div>
+
+          <!-- Subject Navigation Tabs -->
+          <div class="subject-tabs-container" id="subjectTabs">
+            <!-- Populated dynamically (Math, Science, Sst, etc.) -->
+          </div>
+
+          <!-- Chapters & Materials list -->
+          <div class="classroom-body">
+            <div class="classroom-sidebar">
+              <h4>अध्यायों की सूची (Chapters)</h4>
+              <div class="chapter-list-nav" id="chapterListNav">
+                <!-- Chapters items dynamically populated -->
+              </div>
+            </div>
+            
+            <div class="classroom-content">
+              <div class="chapter-details-card" id="chapterDetailsCard">
+                <!-- Chapter title and its Lectures, Notes, Quizzes list populated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LIVE CLASS SCREEN ================= -->
+      <section class="tab-content" id="view-live">
+        <!-- 1. Offline/Waiting Screen -->
+        <div id="offlineLiveClassContainer" class="offline-live-placeholder">
+          <div class="ol-content" style="text-align: center; padding: 48px 24px; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; max-width: 600px; margin: 40px auto; box-shadow: var(--shadow-md);">
+            <div style="font-size: 56px; margin-bottom: 20px; animation: pulse 1.5s infinite;">📺</div>
+            <h2 style="font-size: 22px; font-family: var(--font-display); margin-bottom: 12px; color: var(--text-primary);">दिनेश सर अभी लाइव नहीं हैं 😔</h2>
+            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; font-family: var(--font-content);">जब दिनेश सर लाइव क्लास शुरू करेंगे, तब यहाँ लेक्चर अपने आप चालू हो जाएगा। तब तक आप रिकॉर्डेड लेक्चर्स देखने के लिए संकल्प बैच में जा सकते हैं।</p>
+            <button class="btn btn-primary" onclick="switchTab('batches')">
+              <i class="fa-solid fa-graduation-cap"></i> संकल्प बैच में जाएं
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Active Live Classroom (hidden by default) -->
+        <div id="activeLiveClassContainer" style="display: none;">
+          <div class="live-player-layout">
+            <!-- Video Section -->
+            <div class="video-container-wrapper">
+              <div class="video-player-aspect">
+                <div class="video-placeholder" id="liveVideoPlayer">
+                  <!-- Video iframe loaded dynamically -->
+                </div>
+              </div>
+              <div class="video-info-bar">
+                <span class="live-indicator"><i class="fa-solid fa-circle"></i> लाइव</span>
+                <h2 id="liveClassTitle">लाइव क्लास चालू है</h2>
+                <p id="liveClassInstructor">दिनेश सर (Dinesh Jaiswal) द्वारा संचालित</p>
+              </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-container">
+              <div class="chat-header">
+                <h3><i class="fa-regular fa-comments"></i> लाइव चैट (Live Chat)</h3>
+                <span class="online-users-count" id="liveWatchingBadge"><i class="fa-solid fa-eye"></i> <span id="liveWatchingCount">12</span> देख रहे हैं</span>
+              </div>
+              <div class="chat-messages" id="liveChatMessages">
+                <!-- Dynamically populated messages -->
+              </div>
+              <div class="chat-input-area">
+                <form id="chatForm">
+                  <input type="text" id="chatInputField" placeholder="सवाल पूछें या चैट करें..." autocomplete="off">
+                  <button type="submit" class="chat-send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= NOTES / PDF SCREEN ================= -->
+      <section class="tab-content" id="view-notes">
+        <div class="notes-explorer" id="notesListSection">
+          <div class="search-notes-header">
+            <h2>📚 हस्तलिखित एवं स्मार्ट नोट्स (PDF Notes)</h2>
+            <p>कक्षा 10 यूपी बोर्ड के सभी विषयों के बेहतरीन हस्तलिखित नोट्स जो परीक्षा में दिलाएंगे पूरे मार्क्स।</p>
+          </div>
+          <div class="notes-grid" id="notesGrid">
+            <!-- Dynamically populated subjects & notes -->
+          </div>
+        </div>
+
+        <!-- Simulated PDF Reader View (Fullscreen-like inside main content) -->
+        <div class="pdf-reader-view" id="pdfReaderSection" style="display: none;">
+          <div class="pdf-reader-header">
+            <button class="back-btn-notes" onclick="closePDFReader()">
+              <i class="fa-solid fa-arrow-left"></i> नोट्स सूची में वापस जाएं
+            </button>
+            <h3 id="pdfTitle">हस्तलिखित नोट्स - अध्याय 1</h3>
+            <div class="pdf-actions">
+              <button onclick="window.print()" class="pdf-action-btn"><i class="fa-solid fa-print"></i> प्रिंट</button>
+              <button onclick="alert('नोट्स ऑफलाइन डाउनलोड हो गए हैं!')" class="pdf-action-btn pdf-download-btn"><i class="fa-solid fa-download"></i> डाउनलोड (PDF)</button>
+            </div>
+          </div>
+          <div class="pdf-content-body" id="pdfContentBody">
+            <!-- Rich HTML note content loaded dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= QUIZ SCREEN ================= -->
+      <section class="tab-content" id="view-quiz">
+        <div class="quiz-explorer" id="quizSelectSection">
+          <div class="quiz-header-banner">
+            <h2>📝 ऑनलाइन मॉक टेस्ट सीरीज (Test Series)</h2>
+            <p>यूपी बोर्ड कक्षा 10 परीक्षा पैटर्न पर आधारित बहुविकल्पीय प्रश्न (MCQs) और साप्ताहिक टेस्ट दें।</p>
+          </div>
+          <div class="quiz-subjects-grid" id="quizGrid">
+            <!-- Dynamically populated list of quizzes -->
+          </div>
+        </div>
+
+        <!-- Quiz Execution Screen -->
+        <div class="quiz-play-view" id="quizPlaySection" style="display: none;">
+          <div class="quiz-play-header">
+            <div class="quiz-info-meta">
+              <h3 id="activeQuizTitle">रासायनिक अभिक्रियाएं - साप्ताहिक टेस्ट</h3>
+              <p id="activeQuizSubtitle">विज्ञान | कक्षा 10 यूपी बोर्ड</p>
+            </div>
+            <div class="quiz-timer" id="quizTimer">
+              <i class="fa-regular fa-clock"></i> समय: <span id="timerText">03:00</span>
+            </div>
+          </div>
+
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quizProgressFill" style="width: 0%;"></div>
+          </div>
+
+          <div class="quiz-card-body">
+            <span class="question-num" id="questionNumText">प्रश्न 1 of 5</span>
+            <h2 class="question-text" id="questionText">लोहे पर जंग लगना किस प्रकार की अभिक्रिया है?</h2>
+            
+            <div class="quiz-options-list" id="quizOptionsList">
+              <!-- Radio option buttons dynamically loaded -->
+            </div>
+          </div>
+
+          <div class="quiz-footer-actions">
+            <button class="btn btn-secondary" id="quizQuitBtn" onclick="quitQuiz()">टेस्ट छोड़ें</button>
+            <button class="btn btn-primary" id="quizNextBtn" onclick="nextQuestion()">अगला प्रश्न <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Quiz Result Screen -->
+        <div class="quiz-result-view" id="quizResultSection" style="display: none;">
+          <div class="result-card">
+            <div class="result-badge-icon">🎉</div>
+            <h2>टेस्ट पूरा हुआ!</h2>
+            <p id="resultSubjectInfo">विज्ञान - रासायनिक अभिक्रियाएं</p>
+            
+            <div class="score-container">
+              <div class="score-number" id="resultScore">3/3</div>
+              <span class="score-label">आपका स्कोर</span>
+            </div>
+
+            <div class="result-stats">
+              <div class="stat-box">
+                <span class="stat-val" id="resultPercentage">100%</span>
+                <span class="stat-lbl">प्रतिशत</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="resultCorrectCount">3</span>
+                <span class="stat-lbl">सही जवाब</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="resultTimeSpent">45s</span>
+                <span class="stat-lbl">समय लगा</span>
+              </div>
+            </div>
+
+            <div class="result-action-buttons">
+              <button class="btn btn-primary" onclick="showQuizSelect()">मुख्य टेस्ट पेज पर जाएं</button>
+              <button class="btn btn-secondary" onclick="showQuizAnalysis()">प्रश्नों का हल (Analysis)</button>
+            </div>
+          </div>
+
+          <!-- Answers Analysis Section -->
+          <div class="answers-analysis" id="answersAnalysis" style="display: none;">
+            <h3>प्रश्नों के सही उत्तर और स्पष्टीकरण:</h3>
+            <div class="analysis-list" id="analysisList">
+              <!-- Dynamically populated reviews -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PROFILE SCREEN ================= -->
+      <section class="tab-content" id="view-profile">
+        <div class="profile-layout">
+          <!-- Profile Card -->
+          <div class="profile-card">
+            <div class="profile-header-accent"></div>
+            <div class="profile-avatar-large">DJ</div>
+            <h2 class="profile-user-name">दिनेश जायसवाल</h2>
+            <span class="profile-user-tag">कक्षा 10 छात्र | यूपी बोर्ड (हिन्दी माध्यम)</span>
+            
+            <div class="profile-stats-row">
+              <div class="p-stat">
+                <span class="p-val" id="profileEnrolledBatches">1</span>
+                <span class="p-lbl">बैच</span>
+              </div>
+              <div class="p-stat">
+                <span class="p-val" id="profileTestsGiven">0</span>
+                <span class="p-lbl">टेस्ट दिए</span>
+              </div>
+              <div class="p-stat">
+                <span class="p-val" id="profileAvgScore">0%</span>
+                <span class="p-lbl">औसत स्कोर</span>
+              </div>
+            </div>
+            
+            <div class="profile-details-list">
+              <div class="p-detail-item">
+                <span class="det-label">ईमेल:</span>
+                <span class="det-val">dinesh.jaiswal@example.com</span>
+              </div>
+              <div class="p-detail-item">
+                <span class="det-label">मोबाइल:</span>
+                <span class="det-val">+91 98765 43210</span>
+              </div>
+              <div class="p-detail-item">
+                <span class="det-label">टारगेट परीक्षा:</span>
+                <span class="det-val">यूपी बोर्ड 10वीं परीक्षा 2027</span>
+              </div>
+            </div>
+
+            <div class="profile-details-list" style="margin-top: 1.2rem; border-top: 1px dashed var(--border-color); padding-top: 1.2rem;">
+              <h3 style="font-size: 12.5px; font-weight: bold; margin-bottom: 10px; color: var(--text-primary); display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-chart-simple" style="color: var(--accent-saffron);"></i> पढ़ाई और ऐप उपयोग का समय (Usage Tracker)</h3>
+              <div class="p-detail-item">
+                <span class="det-label">⏱️ आज का समय (Today):</span>
+                <span class="det-val" id="profileTodayTime" style="font-weight: bold; color: var(--accent-saffron);">0 मिनट</span>
+              </div>
+              <div class="p-detail-item">
+                <span class="det-label">📊 कुल समय (Total):</span>
+                <span class="det-val" id="profileTotalTime" style="font-weight: bold; color: var(--text-primary);">0 मिनट</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Learning Progress Tracker -->
+          <div class="progress-settings-panel">
+            <h3 class="panel-title">📚 आपकी पढ़ाई की प्रगति (Learning Progress)</h3>
+            <div class="progress-bars-container">
+              <div class="subject-prog-item">
+                <div class="prog-info">
+                  <span>विज्ञान (Science)</span>
+                  <span>50% पूरा</span>
+                </div>
+                <div class="prog-track"><div class="prog-bar" style="width: 50%;"></div></div>
+              </div>
+              <div class="subject-prog-item">
+                <div class="prog-info">
+                  <span>गणित (Maths)</span>
+                  <span>25% पूरा</span>
+                </div>
+                <div class="prog-track"><div class="prog-bar" style="width: 25%;"></div></div>
+              </div>
+              <div class="subject-prog-item">
+                <div class="prog-info">
+                  <span>सामाजिक विज्ञान</span>
+                  <span>10% पूरा</span>
+                </div>
+                <div class="prog-track"><div class="prog-bar" style="width: 10%;"></div></div>
+              </div>
+            </div>
+
+            <h3 class="panel-title" style="margin-top: 2rem;">⚙️ सेटिंग्स</h3>
+            <div class="settings-actions">
+              <button class="btn btn-secondary btn-block" onclick="resetAppData()">
+                <i class="fa-solid fa-rotate-left"></i> ऐप प्रोग्रेस रीसेट करें (Reset Data)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ADMIN PANEL SCREEN ================= -->
+      <section class="tab-content" id="view-admin" style="display: none;">
+        <div class="admin-grid">
+          <!-- Left side: Upload Form -->
+          <div class="admin-upload-card">
+            <h3><i class="fa-solid fa-cloud-arrow-up"></i> नया स्टडी मटेरियल अपलोड करें</h3>
+            <form id="adminUploadForm" class="admin-form">
+              <div class="form-group">
+                <label for="adminSubjectSelect">विषय (Subject) चुनें:</label>
+                <select id="adminSubjectSelect" required>
+                  <option value="science">विज्ञान (Science)</option>
+                  <option value="maths">गणित (Maths)</option>
+                  <option value="social-science">सामाजिक विज्ञान</option>
+                  <option value="hindi">हिन्दी</option>
+                  <option value="english">अंग्रेजी</option>
+                </select>
+              </div>
+
+              <!-- Chapter Select -->
+              <div class="form-group">
+                <label for="adminChapterSelect">अध्याय (Chapter) चुनें:</label>
+                <select id="adminChapterSelect" onchange="handleAdminChapterChange()" required>
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+
+              <!-- New Chapter Title Input (shown dynamically) -->
+              <div class="form-group" id="newChapterGroup" style="display: none;">
+                <label for="newChapterTitle" style="color: var(--accent-saffron); font-weight: 700;">🆕 नए अध्याय का नाम दर्ज करें:</label>
+                <input type="text" id="newChapterTitle" placeholder="जैसे: अध्याय 2: बहुपद (Polynomials)">
+              </div>
+
+              <div class="form-group">
+                <label for="adminContentType">मटेरियल का प्रकार:</label>
+                <select id="adminContentType" onchange="toggleAdminContentFields()" required>
+                  <option value="lecture">📽️ वीडियो लेक्चर (Lecture)</option>
+                  <option value="note">📄 हस्तलिखित नोट्स (PDF/HTML)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="adminContentTitle">मटेरियल का शीर्षक (Title):</label>
+                <input type="text" id="adminContentTitle" placeholder="जैसे: हस्तलिखित नोट्स - रासायनिक अभिक्रियाएं" required>
+              </div>
+
+              <!-- Video Fields -->
+              <div id="adminVideoFields" class="form-group-sub">
+                <div class="form-group">
+                  <label for="adminVideoId">यूट्यूब वीडियो ID (YouTube Video ID):</label>
+                  <input type="text" id="adminVideoId" placeholder="जैसे: h2H8WlhKz64">
+                </div>
+                <div class="form-group">
+                  <label for="adminVideoDuration">वीडियो की अवधि (Duration):</label>
+                  <input type="text" id="adminVideoDuration" placeholder="जैसे: 45:30" value="45:00">
+                </div>
+              </div>
+
+              <!-- Notes HTML Content Field -->
+              <div id="adminNotesFields" class="form-group-sub" style="display: none;">
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="adminPdfFile">💾 PDF फ़ाइल अपलोड करें (Upload PDF File):</label>
+                  <input type="file" id="adminPdfFile" accept="application/pdf" style="padding: 6px;">
+                  <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">या फिर नीचे सीधे नोट्स का टेक्स्ट टाइप करें:</span>
+                </div>
+                <div class="form-group">
+                  <label for="adminNotesContent">नोट्स की सामग्री (HTML/Text) - यहाँ नोट्स टाइप करें:</label>
+                  <textarea id="adminNotesContent" rows="10" placeholder="नोट्स की सामग्री यहाँ लिखें (HTML कोड भी समर्थित है)..."></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">मटेरियल अपलोड करें (Upload)</button>
+            </form>
+          </div>
+
+          <!-- MCQ Mock Test Creator Card -->
+          <div class="admin-upload-card" style="margin-top: 1.5rem;">
+            <h3><i class="fa-solid fa-file-signature"></i> 📝 नया ऑनलाइन मॉक टेस्ट (MCQ Quiz) बनाएं</h3>
+            <p class="admin-meta-desc">यहाँ से किसी भी विषय के लिए 2 प्रश्नों का एक नया ऑनलाइन मॉक टेस्ट लाइव करें।</p>
+            <form id="adminQuizForm" class="admin-form">
+              <div class="form-group">
+                <label for="quizSubjectSelect">विषय (Subject) चुनें:</label>
+                <select id="quizSubjectSelect" required>
+                  <option value="science">विज्ञान (Science)</option>
+                  <option value="maths">गणित (Maths)</option>
+                  <option value="social-science">सामाजिक विज्ञान</option>
+                  <option value="hindi">हिन्दी</option>
+                  <option value="english">अंग्रेजी</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="quizTitleInput">मॉक टेस्ट का शीर्षक (Title):</label>
+                <input type="text" id="quizTitleInput" placeholder="जैसे: अध्याय 1 रासायनिक अभिक्रियाएं - टेस्ट 02" required>
+              </div>
+
+              <!-- Question 1 -->
+              <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 15px;">
+                <h4 style="font-size: 12px; color: var(--accent-saffron); font-weight: bold; margin-bottom: 8px;">प्रश्न 1 (Question 1):</h4>
+                <div class="form-group">
+                  <label for="q1Text">प्रश्न का टेक्स्ट:</label>
+                  <input type="text" id="q1Text" placeholder="जैसे: लोहे पर जंग लगना किस प्रकार की अभिक्रिया है?" required>
+                </div>
+                <div class="form-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                  <div>
+                    <label>ऑप्शन A:</label>
+                    <input type="text" id="q1OptA" placeholder="ऑप्शन A" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन B:</label>
+                    <input type="text" id="q1OptB" placeholder="ऑप्शन B" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन C:</label>
+                    <input type="text" id="q1OptC" placeholder="ऑप्शन C" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन D:</label>
+                    <input type="text" id="q1OptD" placeholder="ऑप्शन D" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="q1Correct">सही ऑप्शन (Correct Option):</label>
+                  <select id="q1Correct" required>
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="q1Explanation">सही उत्तर का स्पष्टीकरण (Explanation):</label>
+                  <input type="text" id="q1Explanation" placeholder="जैसे: ऑक्सीकरण क्योंकि लोहा ऑक्सीजन से क्रिया करता है।">
+                </div>
+              </div>
+
+              <!-- Question 2 -->
+              <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 15px;">
+                <h4 style="font-size: 12px; color: var(--accent-saffron); font-weight: bold; margin-bottom: 8px;">प्रश्न 2 (Question 2):</h4>
+                <div class="form-group">
+                  <label for="q2Text">प्रश्न का टेक्स्ट:</label>
+                  <input type="text" id="q2Text" placeholder="जैसे: उदासीन विलयन का pH मान क्या होता है?" required>
+                </div>
+                <div class="form-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                  <div>
+                    <label>ऑप्शन A:</label>
+                    <input type="text" id="q2OptA" placeholder="ऑप्शन A" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन B:</label>
+                    <input type="text" id="q2OptB" placeholder="ऑप्शन B" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन C:</label>
+                    <input type="text" id="q2OptC" placeholder="ऑप्शन C" required>
+                  </div>
+                  <div>
+                    <label>ऑप्शन D:</label>
+                    <input type="text" id="q2OptD" placeholder="ऑप्शन D" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="q2Correct">सही ऑप्शन (Correct Option):</label>
+                  <select id="q2Correct" required>
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="q2Explanation">सही उत्तर का स्पष्टीकरण (Explanation):</label>
+                  <input type="text" id="q2Explanation" placeholder="जैसे: उदासीन विलयन का pH मान हमेशा 7 होता है।">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">🚀 मॉक टेस्ट लाइव करें (Publish Mock Test)</button>
+            </form>
+          </div>
+
+          <!-- Right side: Student Log & Webhook Settings -->
+          <div class="admin-meta-side">
+            <!-- Announcement Card -->
+            <div class="admin-settings-card" style="margin-bottom: 1.5rem;">
+              <h3><i class="fa-solid fa-bullhorn"></i> सभी छात्रों को घोषणा (Announcement) भेजें</h3>
+              <p class="admin-meta-desc">यहाँ से भेजी गई घोषणा तुरंत सभी छात्रों के ऐप में नोटिफिकेशन घंटी (Bell) पर लाल बैज के साथ पहुंच जाएगी।</p>
+              <form id="adminAnnouncementForm" class="admin-form">
+                <div class="form-group">
+                  <label for="adminAnnouncementText">घोषणा का टेक्स्ट:</label>
+                  <input type="text" id="adminAnnouncementText" placeholder="जैसे: कल गणित की क्लास सुबह 9:00 बजे होगी..." required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">घोषणा भेजें (Send)</button>
+              </form>
+            </div>
+
+            <!-- Live Streaming Control Card -->
+            <div class="admin-settings-card" style="margin-bottom: 1.5rem;">
+              <h3><i class="fa-solid fa-tower-broadcast"></i> 🔴 लाइव क्लास कंट्रोल पैनल</h3>
+              <p class="admin-meta-desc">यहाँ से लाइव क्लास शुरू या बंद करें। छात्र अपने डैशबोर्ड से ज्वाइन कर सकेंगे।</p>
+              
+              <!-- Start Live Form -->
+              <form id="adminStartLiveForm" class="admin-form">
+                <div class="form-group">
+                  <label for="liveSubjectSelect">विषय (Subject) चुनें:</label>
+                  <select id="liveSubjectSelect" required>
+                    <option value="maths">गणित (Maths)</option>
+                    <option value="science">विज्ञान (Science)</option>
+                    <option value="social-science">सामाजिक विज्ञान</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="liveClassTitleInput">लाइव क्लास का शीर्षक:</label>
+                  <input type="text" id="liveClassTitleInput" placeholder="जैसे: वास्तविक संख्याएं - लाइव क्लास" required>
+                </div>
+                <div class="form-group">
+                  <label for="liveVideoIdInput">YouTube Video ID (लाइव स्ट्रीम ID):</label>
+                  <input type="text" id="liveVideoIdInput" placeholder="जैसे: 5qh5u584_uQ" required>
+                </div>
+                <div class="form-group">
+                  <div class="checkbox-inline">
+                    <input type="checkbox" id="liveEnableSimulation" checked>
+                    <label for="liveEnableSimulation">डेमो छात्र चैट सिमुलेशन चालू करें (1280 छात्र एक्टिव दिखाने के लिए)</label>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">🔴 लाइव क्लास शुरू करें (Go Live)</button>
+              </form>
+              
+              <!-- Active Live Status (hidden by default) -->
+              <div id="adminLiveActiveStatus" style="display: none; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--accent-live); font-weight: bold; margin-bottom: 10px;">
+                  <span style="width: 10px; height: 10px; background-color: var(--accent-live); border-radius: 50%; display: inline-block; animation: pulse 1s infinite;"></span>
+                  <span>आप अभी लाइव हैं!</span>
+                </div>
+                <p id="adminLiveActiveTitle" style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--text-primary);"></p>
+                <button type="button" class="btn btn-secondary btn-block" onclick="stopLiveClass()" style="background-color: var(--accent-live); border-color: var(--accent-live); color: white;">⏹️ लाइव क्लास बंद करें (Stop Live)</button>
+              </div>
+            </div>
+
+            <!-- Weekly Schedule Manager Card -->
+            <div class="admin-settings-card" style="margin-bottom: 1.5rem;">
+              <h3><i class="fa-solid fa-calendar-days"></i> 📅 क्लास समय सारणी (Schedule) मैनेजर</h3>
+              <p class="admin-meta-desc">यहाँ से साप्ताहिक क्लासेज का शेड्यूल सेट करें। यदि किसी दिन क्लास स्थगित करनी हो, तो स्थिति 'आज छुट्टी है' सेट करें।</p>
+              <form id="adminScheduleForm" class="admin-form">
+                <div class="form-group">
+                  <label for="scheduleDaySelect">सप्ताह का दिन चुनें:</label>
+                  <select id="scheduleDaySelect" required>
+                    <option value="mon">सोमवार (Monday)</option>
+                    <option value="tue">मंगलवार (Tuesday)</option>
+                    <option value="wed">बुधवार (Wednesday)</option>
+                    <option value="thu">गुरुवार (Thursday)</option>
+                    <option value="fri">शुक्रवार (Friday)</option>
+                    <option value="sat">शनिवार (Saturday)</option>
+                    <option value="sun">रविवार (Sunday)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="scheduleStatusSelect">क्लास की स्थिति:</label>
+                  <select id="scheduleStatusSelect" onchange="window.toggleScheduleStatusFields()" required>
+                    <option value="Active">● क्लास चालू है (Active)</option>
+                    <option value="Cancelled">● आज छुट्टी है (Holiday)</option>
+                  </select>
+                </div>
+                <div id="scheduleActiveFields">
+                  <div class="form-group">
+                    <label for="scheduleTimeInput">क्लास का समय:</label>
+                    <input type="text" id="scheduleTimeInput" placeholder="जैसे: 06:00 PM" value="06:00 PM">
+                  </div>
+                  <div class="form-group">
+                    <label for="scheduleSubjectInput">विषय:</label>
+                    <input type="text" id="scheduleSubjectInput" placeholder="जैसे: गणित (Maths)">
+                  </div>
+                  <div class="form-group">
+                    <label for="scheduleTopicInput">टॉपिक का नाम:</label>
+                    <input type="text" id="scheduleTopicInput" placeholder="जैसे: द्विघात समीकरण">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">शेड्यूल अपडेट करें (Update)</button>
+              </form>
+            </div>
+
+            <!-- Webhook Card -->
+            <div class="admin-settings-card">
+              <h3><i class="fa-solid fa-bell"></i> फोन नोटिफिकेशन सेटिंग्स</h3>
+              <p class="admin-meta-desc">जब कोई नया छात्र साइन-अप करेगा, तो आपको अपने फोन पर तुरंत सूचना मिलेगी (Discord Webhook द्वारा)।</p>
+              <form id="adminSettingsForm" class="admin-form">
+                <div class="form-group">
+                  <label for="discordWebhookUrl">Discord Webhook URL:</label>
+                  <input type="url" id="discordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-block">सेटिंग्स सेव करें</button>
+              </form>
+            </div>
+
+            <!-- Install / Notification Log -->
+            <div class="admin-logs-card">
+              <h3><i class="fa-solid fa-list-check"></i> ऐप गतिविधि लॉग (Install Alert Stream)</h3>
+              <div class="admin-logs-list" id="adminLogsList">
+                <!-- Dynamically populated log stream -->
+              </div>
+            </div>
+
+            <!-- Registered Students List -->
+            <div class="admin-students-card">
+              <h3><i class="fa-solid fa-users"></i> रजिस्टर्ड छात्र (Registered Students)</h3>
+              <div class="admin-students-list" id="adminStudentsList">
+                <!-- Dynamically populated list of registered users -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Bottom Navigation Bar (Mobile View) -->
+  <nav class="bottom-nav">
+    <a href="#dashboard" class="bottom-nav-item active" data-tab="dashboard">
+      <i class="fa-solid fa-house"></i>
+      <span>होम</span>
+    </a>
+    <a href="#batches" class="bottom-nav-item" data-tab="batches">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>बैच</span>
+    </a>
+    <a href="#live" class="bottom-nav-item" data-tab="live">
+      <i class="fa-solid fa-circle-play"></i>
+      <span>लाइव</span>
+      <span class="bottom-badge-live"></span>
+    </a>
+    <a href="#notes" class="bottom-nav-item" data-tab="notes">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span>नोट्स</span>
+    </a>
+    <a href="#quiz" class="bottom-nav-item" data-tab="quiz">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <span>टेस्ट</span>
+    </a>
+    <a href="#profile" class="bottom-nav-item" data-tab="profile">
+      <i class="fa-solid fa-user"></i>
+      <span>प्रोफाइल</span>
+    </a>
+  </nav>
+
+  <!-- ================= AUTHENTICATION OVERLAY ================= -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card-gyanoday animate-zoom-in">
+      
+      <!-- Left Column: Circular Logo & Brand -->
+      <div class="auth-logo-section">
+        <div class="circular-logo-wrapper">
+          <img src="logo.jpg" alt="DJ Logo" class="gyanoday-style-logo">
+        </div>
+        <h2 class="gyanoday-style-title">DJ ACADEMY</h2>
+        <p class="gyanoday-style-subtitle">UP BOARD CLASS 10</p>
+      </div>
+
+      <!-- Right Column: Form Fields Section -->
+      <div class="auth-form-section">
+        
+        <!-- View 1: Password-based Login (Default) -->
+        <div id="gyanodayLoginView" class="gyanoday-auth-view active-view">
+          <form id="gyanodayLoginForm">
+            <div class="form-group-gy">
+              <label for="gyLoginUser">E-Mail Address/Phone Number</label>
+              <input type="text" id="gyLoginUser" placeholder="Enter email or mobile number" required>
+            </div>
+            
+            <div class="form-group-gy password-group">
+              <div class="label-row">
+                <label for="gyLoginPassword">Password</label>
+                <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('gyLoginPassword', this)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <input type="password" id="gyLoginPassword" placeholder="Password" required>
+              <div class="forgot-pwd-row">
+                <a href="#" class="forgot-pwd-link" onclick="alert('कृपया अपने एडमिन दिनेश सर से संपर्क करें।')">Forgot Password?</a>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gy-login">Login</button>
+            
+            <div class="login-via-otp-container">
+              <button type="button" class="btn-gy-link" onclick="switchToOTPLogin()">Login via OTP</button>
+            </div>
+
+            <div class="new-user-container">
+              <span class="new-user-lbl">New User?</span>
+              <button type="button" class="btn-gy-register" onclick="switchToRegisterView()">Register</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- View 2: Registration -->
+        <div id="gyanodayRegisterView" class="gyanoday-auth-view" style="display: none;">
+          <form id="gyanodayRegisterForm">
+            <div class="form-group-gy">
+              <label for="gyRegName">Full Name</label>
+              <input type="text" id="gyRegName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group-gy">
+              <label for="gyRegPhone">Phone Number</label>
+              <input type="tel" id="gyRegPhone" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
+            </div>
+            <div class="form-group-gy">
+              <label for="gyRegEmail">Email Address (Optional)</label>
+              <input type="email" id="gyRegEmail" placeholder="Enter email address">
+            </div>
+            <div class="form-group-gy password-group">
+              <div class="label-row">
+                <label for="gyRegPassword">Create Password</label>
+                <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('gyRegPassword', this)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <input type="password" id="gyRegPassword" placeholder="Create a secure password" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn-gy-login">Register</button>
+            
+            <div class="new-user-container">
+              <span class="new-user-lbl">Already have an account?</span>
+              <button type="button" class="btn-gy-register" onclick="switchToLoginView()">Login</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- View 3: OTP Login -->
+        <div id="gyanodayOTPView" class="gyanoday-auth-view" style="display: none;">
+          <form id="gyanodayOTPForm">
+            <div class="form-group-gy" id="otpPhoneGroup">
+              <label for="gyOTPPhone">Phone Number</label>
+              <input type="tel" id="gyOTPPhone" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
+            </div>
+            
+            <div class="form-group-gy" id="otpCodeGroup" style="display: none; margin-top: 15px;">
+              <label for="gyOTPCode">Enter OTP Code</label>
+              <input type="text" id="gyOTPCode" placeholder="Enter 4-digit code" maxlength="4">
+              <span class="otp-timer-lbl" id="gyOTPTimerText" style="display: block; font-size: 11px; margin-top: 5px; color: var(--text-secondary);">Resend code in 30s</span>
+            </div>
+
+            <button type="submit" class="btn-gy-login" id="btnGYOTPAction" style="margin-top: 20px;">Get OTP</button>
+            
+            <button type="button" class="btn-gy-register" style="margin-top: 20px; width: 100%;" onclick="switchToLoginView()">Back to Password Login</button>
+          </form>
+        </div>
+
+      </div>
+
+      <div class="auth-status" id="authStatus"></div>
+    </div>
+  </div>
+
+  <!-- Load mockData first, then main logic -->
+  <script src="mockData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

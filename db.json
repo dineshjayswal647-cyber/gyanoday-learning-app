@@ -1,0 +1,124 @@
+{
+  "users": [
+    {
+      "phone": "9838691892",
+      "name": "दिनेश जायसवाल (Admin)",
+      "role": "admin",
+      "password": "12345629"
+    }
+  ],
+  "customChapters": {
+    "science": [
+      {
+        "id": "custom-ch-1786111616932",
+        "title": "अध्याय 2: अम्ल, क्षारक एवं लवण",
+        "lectures": [
+          {
+            "id": "lec-1786111616932",
+            "title": "H",
+            "videoId": "Hhb",
+            "duration": "45:00",
+            "date": "7/8/2026",
+            "description": "अपलोड किया गया लेक्चर: H"
+          }
+        ],
+        "notes": [],
+        "quiz": null
+      }
+    ]
+  },
+  "notifications": [
+    {
+      "id": 1786111616997,
+      "type": "upload",
+      "text": "दिनेश सर ने \"विज्ञान\" के अंतर्गत \"अध्याय 2: अम्ल, क्षारक एवं लवण\" में नया वीडियो लेक्चर अपलोड किया! 📚",
+      "date": "7/8/2026, 7:36:56 pm"
+    },
+    {
+      "id": 1786110385688,
+      "type": "announcement",
+      "text": "📢 घोषणा: Hello bachho",
+      "date": "7/8/2026, 7:16:25 pm"
+    },
+    {
+      "id": 1786110169998,
+      "type": "announcement",
+      "text": "📢 घोषणा: Hello bachho",
+      "date": "7/8/2026, 7:12:49 pm"
+    },
+    {
+      "id": 1786110091277,
+      "type": "login",
+      "text": "शिक्षक \"दिनेश जायसवाल (Admin)\" ने पासवर्ड से लॉगिन किया।",
+      "date": "7/8/2026, 7:11:31 pm"
+    },
+    {
+      "id": 1,
+      "type": "system",
+      "text": "DJ Academy सर्वर सफलतापूर्वक चालू हो गया है!",
+      "date": "7/8/2026, 6:24:31 pm"
+    }
+  ],
+  "settings": {
+    "webhookUrl": ""
+  },
+  "liveClass": null,
+  "schedule": [
+    {
+      "id": "mon",
+      "dayName": "सोमवार (Monday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "गणित (Maths)",
+      "topic": "संख्या पद्धति"
+    },
+    {
+      "id": "tue",
+      "dayName": "मंगलवार (Tuesday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "विज्ञान (Science)",
+      "topic": "रासायनिक अभिक्रियाएं"
+    },
+    {
+      "id": "wed",
+      "dayName": "बुधवार (Wednesday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "गणित (Maths)",
+      "topic": "त्रिकोणमिति"
+    },
+    {
+      "id": "thu",
+      "dayName": "गुरुवार (Thursday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "विज्ञान (Science)",
+      "topic": "अम्ल, क्षारक एवं लवण"
+    },
+    {
+      "id": "fri",
+      "dayName": "शुक्रवार (Friday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "गणित (Maths)",
+      "topic": "दो चरों वाले रैखिक समीकरण"
+    },
+    {
+      "id": "sat",
+      "dayName": "शनिवार (Saturday)",
+      "status": "Active",
+      "time": "06:00 PM",
+      "subject": "विज्ञान (Science)",
+      "topic": "बोर्ड महत्वपूर्ण प्रश्न"
+    },
+    {
+      "id": "sun",
+      "dayName": "रविवार (Sunday)",
+      "status": "Cancelled",
+      "time": "---",
+      "subject": "---",
+      "topic": "साप्ताहिक अवकाश (Holiday)"
+    }
+  ]
+}
