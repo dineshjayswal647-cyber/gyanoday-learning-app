@@ -1169,7 +1169,10 @@ function initNotesExplorer() {
   });
 }
 
+let pdfReaderBackTab = 'notes';
+
 function openNotesPDF(subId, chId, noteId) {
+  pdfReaderBackTab = 'notes';
   const subject = mockData.subjects[subId];
   const chapter = subject.chapters.find(c => c.id === chId);
   const note = chapter.notes.find(n => n.id === noteId);
@@ -1181,8 +1184,14 @@ function openNotesPDF(subId, chId, noteId) {
   document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
   
   if (note.content.startsWith('/uploads/')) {
+    const fullPdfUrl = `${API_URL}${note.content}`;
     document.getElementById('pdfContentBody').innerHTML = `
-      <iframe src="${API_URL}${note.content}" width="100%" height="600px" style="border: none; border-radius: 12px; background-color: #ffffff;"></iframe>
+      <div style="text-align: center; margin-bottom: 15px;">
+        <a href="${fullPdfUrl}" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 13px; text-decoration: none; border-radius: 8px;">
+          <i class="fa-solid fa-download"></i> सीधे PDF डाउनलोड करें (Offline Download)
+        </a>
+      </div>
+      <iframe src="https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fullPdfUrl)}" width="100%" height="600px" style="border: none; border-radius: 12px; background-color: #ffffff;"></iframe>
     `;
   } else {
     document.getElementById('pdfContentBody').innerHTML = note.content;
@@ -1191,7 +1200,12 @@ function openNotesPDF(subId, chId, noteId) {
 
 function closePDFReader() {
   document.getElementById('pdfReaderSection').style.display = 'none';
-  document.getElementById('notesListSection').style.display = 'block';
+  if (pdfReaderBackTab === 'books') {
+    const viewBooks = document.getElementById('view-books');
+    if (viewBooks) viewBooks.style.display = 'block';
+  } else {
+    document.getElementById('notesListSection').style.display = 'block';
+  }
 }
 
 // ==========================================================================
@@ -2466,17 +2480,31 @@ function renderBookSubjectChapters(subjectId) {
 }
 
 window.openBookPDF = function(pdfPath, title) {
-  const readerOverlay = document.getElementById('pdfReaderOverlay');
-  const pdfFrame = document.getElementById('pdfIframe');
-  const htmlContentContainer = document.getElementById('htmlContentContainer');
-  const readerTitle = document.getElementById('pdfReaderTitle');
+  pdfReaderBackTab = 'books';
+  const reader = document.getElementById('pdfReaderSection');
+  const pdfContent = document.getElementById('pdfContentBody');
+  const readerTitle = document.getElementById('pdfTitle');
+  const listSection = document.getElementById('notesListSection');
 
-  if (!readerOverlay || !pdfFrame || !htmlContentContainer || !readerTitle) return;
+  if (!reader || !pdfContent || !readerTitle) return;
 
+  const viewBooks = document.getElementById('view-books');
+  if (viewBooks) viewBooks.style.display = 'none';
+  if (listSection) listSection.style.display = 'none';
+
+  reader.style.display = 'flex';
   readerTitle.textContent = title + " - NCERT Book";
-  htmlContentContainer.style.display = 'none';
-  pdfFrame.style.display = 'block';
-  pdfFrame.src = pdfPath;
-  readerOverlay.style.display = 'flex';
+
+  // Use the live Render URL for Google Docs Viewer
+  const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfPath}`;
+  
+  pdfContent.innerHTML = `
+    <div style="text-align: center; margin-bottom: 15px;">
+      <a href="${serverPdfUrl}" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 13px; text-decoration: none; border-radius: 8px;">
+        <i class="fa-solid fa-download"></i> सीधे PDF डाउनलोड करें (Offline Download)
+      </a>
+    </div>
+    <iframe src="https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(serverPdfUrl)}" width="100%" height="600px" style="border: none; border-radius: 12px; background-color: #ffffff;"></iframe>
+  `;
 };
 
