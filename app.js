@@ -1891,6 +1891,19 @@ async function loadAdminSettings() {
 // ==========================================================================
 
 window.clearLocalNotifications = function() {
+  if (!state.clearedNotificationIds) state.clearedNotificationIds = [];
+  if (state.notifications && state.notifications.length > 0) {
+    state.notifications.forEach(n => {
+      if (!state.clearedNotificationIds.includes(n.id)) {
+        state.clearedNotificationIds.push(n.id);
+      }
+    });
+    saveState();
+    renderNotificationsList();
+  }
+};
+
+window.markAllNotificationsAsRead = function() {
   if (state.notifications && state.notifications.length > 0) {
     state.notifications.forEach(n => {
       if (!state.readNotificationIds.includes(n.id)) {
@@ -1913,9 +1926,9 @@ window.initNotificationSystem = function() {
       const isHidden = dropdown.style.display === 'none';
       dropdown.style.display = isHidden ? 'flex' : 'none';
       
-      // When opened, mark all currently visible ones as read
+      // When opened, mark all currently visible ones as read (clears badge, but keeps list)
       if (isHidden) {
-        clearLocalNotifications();
+        markAllNotificationsAsRead();
       }
     };
 
@@ -1960,11 +1973,15 @@ function renderNotificationsList() {
   container.innerHTML = '';
   
   if (!state.readNotificationIds) state.readNotificationIds = [];
+  if (!state.clearedNotificationIds) state.clearedNotificationIds = [];
   
   let unreadCount = 0;
 
-  if (state.notifications && state.notifications.length > 0) {
-    state.notifications.forEach(n => {
+  // Filter out notifications that the user has cleared
+  const visibleNotifications = state.notifications ? state.notifications.filter(n => !state.clearedNotificationIds.includes(n.id)) : [];
+
+  if (visibleNotifications.length > 0) {
+    visibleNotifications.forEach(n => {
       const isUnread = !state.readNotificationIds.includes(n.id);
       if (isUnread) unreadCount++;
 
