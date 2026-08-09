@@ -630,7 +630,7 @@ function handleRouting() {
 
   let hash = window.location.hash.substring(1) || 'dashboard';
   
-  const allowedTabs = ['dashboard', 'batches', 'live', 'notes', 'quiz', 'profile', 'admin'];
+  const allowedTabs = ['dashboard', 'batches', 'live', 'notes', 'quiz', 'profile', 'admin', 'books'];
   if (!allowedTabs.includes(hash)) {
     hash = 'dashboard';
   }
@@ -665,7 +665,8 @@ function handleRouting() {
     notes: 'हस्तलिखित नोट्स (PDFs)',
     quiz: 'ऑनलाइन टेस्ट सीरीज (Quizzes)',
     profile: 'मेरा प्रोफाइल (Dinesh)',
-    admin: 'एडमिन कंट्रोल पैनल'
+    admin: 'एडमिन कंट्रोल पैनल',
+    books: 'NCERT डिजिटल पुस्तकें 📚'
   };
   document.getElementById('pageTitle').textContent = titles[hash];
 
@@ -683,6 +684,8 @@ function handleRouting() {
     updateProfileStats();
   } else if (hash === 'admin') {
     initAdminPanel();
+  } else if (hash === 'books') {
+    initBooksExplorer();
   }
 
   if (hash !== 'live' && state.liveChatInterval) {
@@ -2365,5 +2368,115 @@ window.deleteAdminQuiz = async function(quizId) {
   } catch (err) {
     alert("सर्वर ऑफलाइन है!");
   }
+};
+
+let activeBookSubjectId = 'maths';
+
+window.initBooksExplorer = function() {
+  const tabsContainer = document.getElementById('bookSubjectTabs');
+  const container = document.getElementById('bookChaptersContainer');
+  if (!tabsContainer || !container) return;
+
+  tabsContainer.innerHTML = '';
+  
+  const subjects = {
+    'maths': { title: '📐 गणित (Maths)', icon: '📐' },
+    'science': { title: '🧪 विज्ञान (Science)', icon: '🧪' },
+    'social-science': { title: '🌍 सा. विज्ञान', icon: '🌍' },
+    'hindi': { title: '✍️ हिन्दी', icon: '✍️' },
+    'english': { title: '📖 अंग्रेजी', icon: '📖' }
+  };
+
+  Object.keys(subjects).forEach(subId => {
+    const sub = subjects[subId];
+    const button = document.createElement('button');
+    button.className = `sub-tab ${activeBookSubjectId === subId ? 'active' : ''}`;
+    button.innerHTML = `<span>${sub.icon}</span> ${sub.title.split(' ')[1] || sub.title}`;
+    button.onclick = () => {
+      activeBookSubjectId = subId;
+      initBooksExplorer();
+    };
+    tabsContainer.appendChild(button);
+  });
+
+  const subjectNames = {
+    'maths': 'गणित (Mathematics)',
+    'science': 'विज्ञान (Science)',
+    'social-science': 'सामाजिक विज्ञान (Social Science)',
+    'hindi': 'हिन्दी (Hindi)',
+    'english': 'अंग्रेजी (English)'
+  };
+  document.getElementById('activeBookSubjectTitle').textContent = `${subjectNames[activeBookSubjectId]} - NCERT डिजिटल पुस्तक`;
+
+  renderBookSubjectChapters(activeBookSubjectId);
+};
+
+function renderBookSubjectChapters(subjectId) {
+  const container = document.getElementById('bookChaptersContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const mathBookFiles = ['11.pdf', '22.pdf', '33.pdf', '44.pdf', '55.pdf', '66.pdf', '77.pdf', '88.pdf', '99.pdf', '10.pdf', '111.pdf', '222.pdf', '333.pdf', '444.pdf', '555.pdf'];
+
+  const subject = mockData.subjects[subjectId];
+  if (!subject || !subject.chapters || subject.chapters.length === 0) {
+    container.innerHTML = `<p style="padding: 20px; text-align: center; font-size: 13px; color: var(--text-muted); grid-column: 1/-1;">इस विषय की NCERT बुक पीडीएफ जल्द ही ऑनलाइन उपलब्ध होगी।</p>`;
+    return;
+  }
+
+  subject.chapters.forEach((ch, index) => {
+    const card = document.createElement('div');
+    card.className = 'notes-card';
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
+    card.style.justifyContent = 'space-between';
+    card.style.height = '100%';
+
+    // Title parsing
+    const chNum = ch.title.split(':')[0] || `अध्याय ${index + 1}`;
+    const chName = ch.title.substring(ch.title.indexOf(':') + 1).trim() || ch.title;
+
+    let actionButton = '';
+    if (subjectId === 'maths' && index < mathBookFiles.length) {
+      const pdfPath = `books/maths/${mathBookFiles[index]}`;
+      actionButton = `
+        <button class="btn btn-primary btn-block" onclick="openBookPDF('${pdfPath}', '${ch.title}')" style="margin-top: auto; font-size:12px; padding: 8px;">
+          <i class="fa-solid fa-file-pdf"></i> पुस्तक पढ़ें (Offline PDF)
+        </button>
+      `;
+    } else {
+      actionButton = `
+        <button class="btn btn-secondary btn-block" disabled style="margin-top: auto; font-size:12px; padding: 8px; opacity: 0.6;">
+          <i class="fa-solid fa-lock"></i> शीघ्र ही उपलब्ध
+        </button>
+      `;
+    }
+
+    card.innerHTML = `
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 11px; color: var(--accent-saffron); font-weight: bold; text-transform: uppercase;">${chNum}</span>
+        <h4 style="font-size: 14px; color: var(--text-primary); font-weight: 700; margin: 4px 0 8px 0; line-height: 1.4;">${chName}</h4>
+        <p style="font-size: 11px; color: var(--text-muted);">आधिकारिक NCERT पाठ्यपुस्तक अध्याय</p>
+      </div>
+      ${actionButton}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+window.openBookPDF = function(pdfPath, title) {
+  const readerOverlay = document.getElementById('pdfReaderOverlay');
+  const pdfFrame = document.getElementById('pdfIframe');
+  const htmlContentContainer = document.getElementById('htmlContentContainer');
+  const readerTitle = document.getElementById('pdfReaderTitle');
+
+  if (!readerOverlay || !pdfFrame || !htmlContentContainer || !readerTitle) return;
+
+  readerTitle.textContent = title + " - NCERT Book";
+  htmlContentContainer.style.display = 'none';
+  pdfFrame.style.display = 'block';
+  pdfFrame.src = pdfPath;
+  readerOverlay.style.display = 'flex';
 };
 

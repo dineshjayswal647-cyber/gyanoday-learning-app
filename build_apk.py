@@ -190,6 +190,14 @@ public class MainActivity extends AppCompatActivity {
         if os.path.exists(src):
             shutil.copy(src, os.path.join(assets_dir, file_name))
 
+    # Copy books folder recursively if exists
+    books_src = r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\books"
+    if os.path.exists(books_src):
+        books_dest = os.path.join(assets_dir, "books")
+        if os.path.exists(books_dest):
+            shutil.rmtree(books_dest)
+        shutil.copytree(books_src, books_dest)
+
     # Copy logo.jpg as launcher icon
     src_logo = r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\logo.jpg"
     dest_res = os.path.join(PROJECT_DIR, "app", "src", "main", "res", "drawable")

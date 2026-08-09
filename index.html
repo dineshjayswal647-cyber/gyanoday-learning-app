@@ -122,6 +122,18 @@
           <img src="banner.jpg" alt="Sankalp Batch 2027 Banner" style="width: 100%; height: auto; display: block; object-fit: cover;">
         </div>
 
+        <!-- NCERT Books Quick Access Card -->
+        <div class="dashboard-books-card" onclick="switchTab('books')" style="cursor: pointer; margin-bottom: 1.5rem; background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-radius: 16px; box-shadow: var(--shadow-sm); transition: transform 0.2s ease;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 30px; background: rgba(255, 111, 0, 0.15); width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(255, 111, 0, 0.25);">📚</div>
+            <div>
+              <h3 style="color: #f3f4f6; font-size: 15px; font-weight: 700; margin: 0 0 4px 0;">सभी विषयों की NCERT किताबें (NCERT Textbooks)</h3>
+              <p style="color: #9ca3af; font-size: 11.5px; margin: 0;">कक्षा 10 यूपी बोर्ड - अध्याय-वार डिजिटल किताबें (ऑफ़लाइन उपलब्ध)</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: #ff6f00; font-size: 16px;"></i>
+        </div>
+
         <!-- Quick Actions Navigation Grid -->
         <h3 class="section-title">त्वरित मार्गदर्शिका (Quick Navigation)</h3>
         <div class="navigation-grid">
@@ -509,6 +521,29 @@
               <button class="btn btn-secondary btn-block" onclick="resetAppData()">
                 <i class="fa-solid fa-rotate-left"></i> ऐप प्रोग्रेस रीसेट करें (Reset Data)
               </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BOOKS SCREEN ================= -->
+      <section class="tab-content" id="view-books" style="display: none;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 class="section-title"><i class="fa-solid fa-book-open"></i> NCERT डिजिटल पुस्तकें (NCERT Textbooks)</h2>
+          <button class="btn btn-secondary" onclick="switchTab('dashboard')" style="padding: 6px 12px; font-size: 13px;"><i class="fa-solid fa-arrow-left"></i> वापस जाएं</button>
+        </div>
+
+        <!-- Subject Select Tab inside Books screen -->
+        <div class="subject-tabs" id="bookSubjectTabs" style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="classroom-body" style="grid-template-columns: 1fr;">
+          <!-- Book Chapters List -->
+          <div class="classroom-main" style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px;">
+            <h3 id="activeBookSubjectTitle" style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--accent-saffron);">गणित (Mathematics) - NCERT पुस्तक</h3>
+            <div id="bookChaptersContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+              <!-- Dynamically populated via app.js -->
             </div>
           </div>
         </div>
