@@ -1176,15 +1176,16 @@ function openNotesPDF(subId, chId, noteId) {
   const chapter = subject.chapters.find(c => c.id === chId);
   const note = chapter.notes.find(n => n.id === noteId);
 
+  pdfReaderBackTab = 'notes';
+  document.getElementById('notesListSection').style.display = 'none';
+  const reader = document.getElementById('pdfReaderSection');
+  reader.style.display = 'flex';
+  document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
+
   if (note.content.startsWith('/uploads/')) {
     const fullPdfUrl = `${API_URL}${note.content}`;
-    window.open(fullPdfUrl, '_blank');
+    renderPDFOffline(fullPdfUrl);
   } else {
-    pdfReaderBackTab = 'notes';
-    document.getElementById('notesListSection').style.display = 'none';
-    const reader = document.getElementById('pdfReaderSection');
-    reader.style.display = 'flex';
-    document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
     document.getElementById('pdfContentBody').innerHTML = note.content;
   }
 }
@@ -2471,7 +2472,117 @@ function renderBookSubjectChapters(subjectId) {
 }
 
 window.openBookPDF = function(pdfPath, title) {
-  const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfPath}`;
-  window.open(serverPdfUrl, '_blank');
+  pdfReaderBackTab = 'books';
+  const reader = document.getElementById('pdfReaderSection');
+  const readerTitle = document.getElementById('pdfTitle');
+  const listSection = document.getElementById('notesListSection');
+
+  if (!reader || !readerTitle) return;
+
+  const viewBooks = document.getElementById('view-books');
+  if (viewBooks) viewBooks.style.display = 'none';
+  if (listSection) listSection.style.display = 'none';
+
+  reader.style.display = 'flex';
+  readerTitle.textContent = title + " - NCERT Book";
+
+  // Use the local file path directly if we want offline assets, or server URL
+  // Since we package books in the assets under books/maths/..., the path is books/maths/11.pdf
+  // To keep it 100% offline, let's load it locally!
+  renderPDFOffline(pdfPath);
+};
+
+window.renderPDFOffline = function(pdfUrl) {
+  const container = document.getElementById('pdfContentBody');
+  if (!container) return;
+  
+  // Show premium loader
+  container.innerHTML = `
+    <div style="text-align:center; padding:35px 20px; color:var(--text-secondary);">
+      <div class="spinner" style="border: 3px solid rgba(255,111,0,0.1); border-top: 3px solid var(--accent-saffron); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
+      किताब लोड हो रही है, कृपया प्रतीक्षा करें...
+      <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">(PDF is loading client-side inside the app)</p>
+    </div>
+    <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  `;
+
+  try {
+    // Configure PDF.js worker to run completely offline/client-side
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+      container.innerHTML = ''; // Clear loading spinner
+      
+      // Load and render all pages of the book chapter sequentially
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'pdf-page-container';
+        pageDiv.style.marginBottom = '20px';
+        pageDiv.style.backgroundColor = '#ffffff';
+        pageDiv.style.borderRadius = '8px';
+        pageDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+        pageDiv.style.overflow = 'hidden';
+        pageDiv.style.display = 'flex';
+        pageDiv.style.flexDirection = 'column';
+        pageDiv.style.alignItems = 'center';
+        pageDiv.style.padding = '10px';
+        
+        const pageLabel = document.createElement('div');
+        pageLabel.style.fontSize = '11px';
+        pageLabel.style.color = '#555555';
+        pageLabel.style.marginBottom = '5px';
+        pageLabel.textContent = `पेज ${pageNum} / ${pdf.numPages}`;
+        pageDiv.appendChild(pageLabel);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+        canvas.style.borderRadius = '4px';
+        pageDiv.appendChild(canvas);
+        container.appendChild(pageDiv);
+
+        pdf.getPage(pageNum).then(function(page) {
+          const viewport = page.getViewport({ scale: 1.5 });
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+          page.render(renderContext);
+        });
+      }
+    }).catch(function(err) {
+      console.error("PDF.js loading error:", err);
+      // Fallback: If it's a relative path, try rendering via online server URL
+      if (!pdfUrl.startsWith('http')) {
+        const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfUrl}`;
+        renderPDFOffline(serverPdfUrl);
+      } else {
+        container.innerHTML = `
+          <div style="text-align:center; padding:30px; color:var(--accent-live);">
+            <p>पीडीएफ लोड करने में विफल! इंटरनेट कनेक्शन चेक करें या बाहरी ब्राउज़र में खोलें:</p>
+            <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
+              <i class="fa-solid fa-up-right-from-square"></i> ब्राउज़र में खोलें
+            </a>
+          </div>
+        `;
+      }
+    });
+  } catch (err) {
+    console.error("PDF.js initialization error:", err);
+    container.innerHTML = `
+      <div style="text-align:center; padding:30px; color:var(--accent-live);">
+        <p>पीडीएफ लाइब्रेरी लोड नहीं हो पाई!</p>
+        <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
+          <i class="fa-solid fa-up-right-from-square"></i> बाहरी ब्राउज़र में खोलें
+        </a>
+      </div>
+    `;
+  }
 };
 
