@@ -2510,7 +2510,7 @@ window.renderPDFOffline = function(pdfUrl) {
 
   try {
     // Configure PDF.js worker to run completely offline/client-side
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
     
     pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
       container.innerHTML = ''; // Clear loading spinner

@@ -183,7 +183,8 @@ public class MainActivity extends AppCompatActivity {
     # Copy files to assets
     files_to_copy = [
         "index.html", "style.css", "app.js", "mockData.js", 
-        "manifest.json", "sw.js", "banner.jpg", "logo.jpg"
+        "manifest.json", "sw.js", "banner.jpg", "logo.jpg",
+        "pdf.min.js", "pdf.worker.min.js"
     ]
     for file_name in files_to_copy:
         src = os.path.join(r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app", file_name)
