@@ -1508,6 +1508,7 @@ function initAdminPanel() {
   loadAdminNotifications();
   loadAdminStudents();
   loadAdminSettings();
+  loadAdminContentManager();
 
   const uploadForm = document.getElementById('adminUploadForm');
   if (uploadForm) {
@@ -2227,3 +2228,125 @@ window.openDirectSubject = function(subjectId) {
   switchTab('batches');
   renderClassroom();
 };
+
+window.loadAdminContentManager = async function() {
+  const container = document.getElementById('adminContentManagerList');
+  if (!container) return;
+  container.innerHTML = '<p style="padding: 10px; font-size:12px; color: var(--text-secondary);">लोड हो रहा है...</p>';
+
+  let itemsHtml = '';
+  const subjectNames = {
+    'science': 'विज्ञान',
+    'maths': 'गणित',
+    'social-science': 'सामाजिक विज्ञान',
+    'hindi': 'हिन्दी',
+    'english': 'अंग्रेजी'
+  };
+
+  let hasItems = false;
+
+  // Render notes and lectures
+  Object.keys(mockData.subjects).forEach(subId => {
+    const subject = mockData.subjects[subId];
+    if (subject.chapters) {
+      subject.chapters.forEach(ch => {
+        ch.lectures.forEach(lec => {
+          if (lec.id.startsWith('lec-')) {
+            hasItems = true;
+            itemsHtml += `
+              <div class="admin-log-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); margin-bottom: 8px;">
+                <div>
+                  <span style="font-size: 11px; color: var(--accent-saffron); font-weight: bold;">📽️ लेक्चर | ${subjectNames[subId] || subId}</span>
+                  <h4 style="font-size: 13px; margin: 4px 0; color: var(--text-primary);">${ch.title} - ${lec.title}</h4>
+                </div>
+                <button onclick="deleteAdminItem('${subId}', '${ch.id}', 'lecture', '${lec.id}')" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash-can"></i> हटाएं</button>
+              </div>
+            `;
+          }
+        });
+
+        ch.notes.forEach(note => {
+          if (note.id.startsWith('note-') || note.id.startsWith('custom-')) {
+            hasItems = true;
+            itemsHtml += `
+              <div class="admin-log-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); margin-bottom: 8px;">
+                <div>
+                  <span style="font-size: 11px; color: var(--accent-saffron); font-weight: bold;">📄 नोट्स | ${subjectNames[subId] || subId}</span>
+                  <h4 style="font-size: 13px; margin: 4px 0; color: var(--text-primary);">${ch.title} - ${note.title}</h4>
+                </div>
+                <button onclick="deleteAdminItem('${subId}', '${ch.id}', 'note', '${note.id}')" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash-can"></i> हटाएं</button>
+              </div>
+            `;
+          }
+        });
+      });
+    }
+  });
+
+  // Render custom quizzes
+  try {
+    const response = await fetch(`${API_URL}/api/quizzes`);
+    if (response.ok) {
+      const quizzes = await response.json();
+      quizzes.forEach(q => {
+        hasItems = true;
+        itemsHtml += `
+          <div class="admin-log-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); margin-bottom: 8px;">
+            <div>
+              <span style="font-size: 11px; color: var(--accent-saffron); font-weight: bold;">📝 टेस्ट | ${subjectNames[q.subjectId] || q.subjectId}</span>
+              <h4 style="font-size: 13px; margin: 4px 0; color: var(--text-primary);">${q.title}</h4>
+            </div>
+            <button onclick="deleteAdminQuiz('${q.id}')" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash-can"></i> हटाएं</button>
+          </div>
+        `;
+      });
+    }
+  } catch(e) {}
+
+  if (!hasItems) {
+    container.innerHTML = '<p style="padding: 15px; font-size:12px; text-align:center; color: var(--text-muted);">कोई भी कस्टम अपलोडेड सामग्री उपलब्ध नहीं है।</p>';
+  } else {
+    container.innerHTML = itemsHtml;
+  }
+};
+
+window.deleteAdminItem = async function(subjectId, chapterId, type, itemId) {
+  if (!confirm("क्या आप वाकई इसे डिलीट करना चाहते हैं?")) return;
+  try {
+    const response = await fetch(`${API_URL}/api/admin/delete-item`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subjectId, chapterId, type, itemId })
+    });
+    if (response.ok) {
+      alert("सामग्री सफलतापूर्वक हटा दी गई है!");
+      await syncCustomContent();
+      loadAdminContentManager();
+    } else {
+      alert("हटाने में विफल!");
+    }
+  } catch (err) {
+    alert("सर्वर ऑफलाइन है!");
+  }
+};
+
+window.deleteAdminQuiz = async function(quizId) {
+  if (!confirm("क्या आप वाकई इस टेस्ट को डिलीट करना चाहते हैं?")) return;
+  try {
+    const response = await fetch(`${API_URL}/api/admin/delete-quiz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quizId })
+    });
+    if (response.ok) {
+      alert("टेस्ट सफलतापूर्वक हटा दिया गया है!");
+      loadAdminContentManager();
+      if (typeof initQuizExplorer === 'function') initQuizExplorer();
+    } else {
+      alert("हटाने में विफल!");
+    }
+  } catch (err) {
+    alert("सर्वर ऑफलाइन है!");
+  }
+};
+

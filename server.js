@@ -600,6 +600,59 @@ app.post('/api/admin/upload', (req, res) => {
   res.status(200).json({ message: "सामग्री सफलतापूर्वक अपलोड कर दी गई है!", customChapters: db.customChapters });
 });
 
+// Delete item (Lecture or Note) from customChapters
+app.post('/api/admin/delete-item', (req, res) => {
+  const { subjectId, chapterId, type, itemId } = req.body;
+  if (!subjectId || !chapterId || !type || !itemId) {
+    return res.status(400).json({ error: "सभी पैरामीटर आवश्यक हैं।" });
+  }
+
+  const db = readDB();
+  if (db.customChapters[subjectId]) {
+    const chapter = db.customChapters[subjectId].find(c => c.id === chapterId);
+    if (chapter) {
+      if (type === 'lecture') {
+        chapter.lectures = chapter.lectures.filter(l => l.id !== itemId);
+      } else if (type === 'note') {
+        // Find the note to delete physical PDF file if it exists
+        const note = chapter.notes.find(n => n.id === itemId);
+        if (note && note.content && note.content.startsWith('/uploads/')) {
+          try {
+            const filePath = path.join(__dirname, note.content);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+              console.log("Deleted physical file:", filePath);
+            }
+          } catch (err) {
+            console.error("Failed to delete physical file:", err);
+          }
+        }
+        chapter.notes = chapter.notes.filter(n => n.id !== itemId);
+      }
+      writeDB(db);
+      return res.status(200).json({ message: "सामग्री सफलतापूर्वक हटा दी गई है!", customChapters: db.customChapters });
+    }
+  }
+  res.status(404).json({ error: "सामग्री नहीं मिली।" });
+});
+
+// Delete custom quiz
+app.post('/api/admin/delete-quiz', (req, res) => {
+  const { quizId } = req.body;
+  if (!quizId) {
+    return res.status(400).json({ error: "क्विज़ ID आवश्यक है।" });
+  }
+
+  const db = readDB();
+  if (db.quizzes) {
+    db.quizzes = db.quizzes.filter(q => q.id !== quizId);
+    writeDB(db);
+    return res.status(200).json({ message: "टेस्ट सफलतापूर्वक हटा दिया गया है!" });
+  }
+  res.status(404).json({ error: "टेस्ट नहीं मिला।" });
+});
+
+
 app.get('/api/admin/notifications', (req, res) => {
   const db = readDB();
   res.status(200).json(db.notifications);
