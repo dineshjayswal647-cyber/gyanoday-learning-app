@@ -2412,7 +2412,7 @@ window.initBooksExplorer = function() {
     'hindi': 'हिन्दी (Hindi)',
     'english': 'अंग्रेजी (English)'
   };
-  document.getElementById('activeBookSubjectTitle').textContent = `${subjectNames[activeBookSubjectId]} - NCERT डिजिटल पुस्तक`;
+  document.getElementById('activeBookSubjectTitle').textContent = `${subjectNames[activeBookSubjectId]} - NCERT पुस्तक 2027`;
 
   renderBookSubjectChapters(activeBookSubjectId);
 };
