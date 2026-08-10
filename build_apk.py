@@ -217,7 +217,7 @@ def build_and_install():
             print("Installing APK directly to mobile via ADB...")
             install_proc = subprocess.run([ADB_PATH, "install", "-r", apk_path], shell=True)
             if install_proc.returncode == 0:
-                print("App successfully installed on your mobile phone! 🎉")
+                print("App successfully installed on your mobile phone!")
                 
                 # Launch the app on phone
                 print("Launching DJ Academy App on your mobile phone...")

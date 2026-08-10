@@ -2442,9 +2442,17 @@ function renderBookSubjectChapters(subjectId) {
     const chNum = ch.title.split(':')[0] || `अध्याय ${index + 1}`;
     const chName = ch.title.substring(ch.title.indexOf(':') + 1).trim() || ch.title;
 
+    let pdfPath = '';
+    if (subjectId === 'maths') {
+      if (index < mathBookFiles.length) {
+        pdfPath = `books/maths/${mathBookFiles[index]}`;
+      }
+    } else {
+      pdfPath = `books/${subjectId}/${index + 1}.pdf`;
+    }
+
     let actionButton = '';
-    if (subjectId === 'maths' && index < mathBookFiles.length) {
-      const pdfPath = `books/maths/${mathBookFiles[index]}`;
+    if (pdfPath) {
       actionButton = `
         <button class="btn btn-primary btn-block" onclick="openBookPDF('${pdfPath}', '${ch.title}')" style="margin-top: auto; font-size:12px; padding: 8px;">
           <i class="fa-solid fa-file-pdf"></i> पुस्तक पढ़ें (Offline PDF)

@@ -93,16 +93,21 @@ function writeDB(data) {
 }
 
 // Helper to send Discord Webhook notification
-function sendWebhookNotification(message) {
+function sendWebhookNotification(payload) {
   const db = readDB();
   const webhookUrl = db.settings.webhookUrl;
   if (!webhookUrl) return;
 
-  const urlData = new URL(webhookUrl);
-  const postData = JSON.stringify({
-    content: `🔔 **DJ Academy Alert:** ${message}`
-  });
+  let postData = '';
+  if (typeof payload === 'object') {
+    postData = JSON.stringify(payload);
+  } else {
+    postData = JSON.stringify({
+      content: `🔔 **DJ Academy Alert:** ${payload}`
+    });
+  }
 
+  const urlData = new URL(webhookUrl);
   const options = {
     hostname: urlData.hostname,
     path: urlData.pathname + urlData.search,
@@ -123,6 +128,23 @@ function sendWebhookNotification(message) {
 
   req.write(postData);
   req.end();
+}
+
+function sendRichWebhook(title, description, colorHex = "#ff6f00", fields = []) {
+  const colorDec = parseInt(colorHex.replace("#", ""), 16);
+  const payload = {
+    embeds: [{
+      title: title,
+      description: description,
+      color: colorDec,
+      fields: fields,
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: "ज्ञानोदय लर्निंग ऐप • लाइव अलर्ट"
+      }
+    }]
+  };
+  sendWebhookNotification(payload);
 }
 
 // ==========================================================================
@@ -159,7 +181,10 @@ app.post('/api/auth/login', (req, res) => {
       date: new Date().toLocaleString('hi-IN')
     });
     writeDB(db);
-    sendWebhookNotification(loginLog);
+    sendRichWebhook("🔑 छात्र लॉगिन (User Login)", `छात्र **${user.name}** ने सफलतापूर्वक लॉगिन किया।`, "#4caf50", [
+      { name: "👤 नाम (Name)", value: user.name, inline: true },
+      { name: "📱 मोबाइल (Mobile)", value: user.phone, inline: true }
+    ]);
   }
 
   res.status(200).json({
@@ -204,7 +229,10 @@ app.post('/api/auth/register', (req, res) => {
   });
   writeDB(db);
 
-  sendWebhookNotification(logText);
+  sendRichWebhook("🎓 नया रजिस्ट्रेशन (New Registration)", `एक नए छात्र ने ऐप पर प्रोफाइल बनाई है!`, "#ff6f00", [
+    { name: "👤 नाम (Name)", value: name, inline: true },
+    { name: "📱 मोबाइल (Mobile)", value: phone, inline: true }
+  ]);
 
   res.status(201).json({
     message: "रजिस्ट्रेशन सफल!",
@@ -230,7 +258,10 @@ app.post('/api/auth/send-otp', (req, res) => {
   const userExists = db.users.some(u => u.phone === phone);
 
   console.log(`[OTP SENT] Mobile: ${phone} | OTP: ${otp} | Exists: ${userExists}`);
-  sendWebhookNotification(`OTP कोड **${otp}** मोबाइल **${phone}** पर भेजा गया है।`);
+  sendRichWebhook("💬 OTP वेरिफिकेशन लॉग", `मोबाइल **${phone}** के लिए OTP कोड जनरेट किया गया।`, "#ffeb3b", [
+    { name: "📱 मोबाइल", value: phone, inline: true },
+    { name: "🔑 OTP कोड", value: `**${otp}**`, inline: true }
+  ]);
 
   res.status(200).json({
     message: "OTP सफलतापूर्वक भेजा गया!",
@@ -344,7 +375,10 @@ app.post('/api/admin/live/start', (req, res) => {
   });
 
   writeDB(db);
-  sendWebhookNotification(notifyText);
+  sendRichWebhook("🔴 लाइव क्लास शुरू! (Live Class Started)", `दिनेश सर अभी लाइव पढ़ा रहे हैं!`, "#f44336", [
+    { name: "📚 विषय (Subject)", value: title, inline: false },
+    { name: "📺 यूट्यूब वीडियो आईडी (YouTube ID)", value: videoId, inline: true }
+  ]);
 
   res.status(200).json({ message: "लाइव क्लास सफलतापूर्वक शुरू कर दी गई है!", liveClass: db.liveClass });
 });
@@ -433,7 +467,10 @@ app.post('/api/admin/schedule', (req, res) => {
   });
 
   writeDB(db);
-  sendWebhookNotification(notifyText);
+  sendRichWebhook("📅 लाइव क्लास शेड्यूल अपडेट", notifyText, "#9c27b0", [
+    { name: "📆 दिन (Day)", value: dayNameStr, inline: true },
+    { name: "🔔 स्थिति (Status)", value: status === "Cancelled" ? "🔴 Cancelled / छुट्टी" : "🟢 Scheduled", inline: true }
+  ]);
 
   res.status(200).json({ message: "शेड्यूल सफलतापूर्वक अपडेट हो गया!", schedule: db.schedule });
 });
@@ -492,7 +529,10 @@ app.post('/api/admin/quiz', (req, res) => {
   });
 
   writeDB(db);
-  sendWebhookNotification(notifyText);
+  sendRichWebhook("📝 नया मॉक टेस्ट लाइव! (New Mock Test Live)", notifyText, "#00bcd4", [
+    { name: "📚 विषय (Subject)", value: subName, inline: true },
+    { name: "📋 टेस्ट नाम (Test Name)", value: title, inline: true }
+  ]);
 
   res.status(200).json({ message: "मॉक टेस्ट सफलतापूर्वक लाइव कर दिया गया है!", quiz: newQuiz });
 });
@@ -595,7 +635,11 @@ app.post('/api/admin/upload', (req, res) => {
   });
 
   writeDB(db);
-  sendWebhookNotification(notifyText);
+  sendRichWebhook("📚 नया स्टडी मटेरियल अपलोड", notifyText, "#ff9800", [
+    { name: "📚 विषय (Subject)", value: subjectId === 'science' ? 'विज्ञान (Science)' : 'गणित (Maths)', inline: true },
+    { name: "📖 अध्याय (Chapter)", value: chapterTitle, inline: true },
+    { name: "🏷️ प्रकार (Type)", value: type === 'lecture' ? 'वीडियो लेक्चर (Video)' : 'हस्तलिखित नोट्स PDF', inline: true }
+  ]);
 
   res.status(200).json({ message: "सामग्री सफलतापूर्वक अपलोड कर दी गई है!", customChapters: db.customChapters });
 });
@@ -700,7 +744,7 @@ app.post('/api/admin/announcement', (req, res) => {
     date: new Date().toLocaleString('hi-IN')
   });
   writeDB(db);
-  sendWebhookNotification(announcementText);
+  sendRichWebhook("📢 नई घोषणा (New Announcement)", text, "#03a9f4");
 
   res.status(200).json({ message: "घोषणा सफलतापूर्वक भेज दी गई!" });
 });
