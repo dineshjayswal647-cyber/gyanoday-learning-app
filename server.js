@@ -321,7 +321,7 @@ app.post('/api/auth/send-otp', (req, res) => {
       url = `https://www.fast2sms.com/dev/bulkV2?sender_id=${encodeURIComponent(senderId)}&message=${encodeURIComponent(templateId)}&variables_values=${otp}&route=dlt&numbers=${phone}`;
     } else {
       // Standard Quick SMS route fallback
-      url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(apiKey)}&variables_values=${otp}&route=otp&numbers=${phone}`;
+      url = `https://www.fast2sms.com/dev/bulkV2?variables_values=${otp}&route=otp&numbers=${phone}`;
     }
 
     const options = {
