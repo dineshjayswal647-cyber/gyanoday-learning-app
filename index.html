@@ -16,12 +16,12 @@
   <script src="pdf.min.js"></script>
   <script src="pdf.worker.min.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
       navigator.serviceWorker.getRegistrations().then(registrations => {
         for (let registration of registrations) {
           registration.unregister();
         }
-      });
+      }).catch(err => console.log('Service Worker getRegistrations failed:', err));
     }
   </script>
 </head>
