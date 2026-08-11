@@ -309,18 +309,35 @@ app.post('/api/auth/send-otp', (req, res) => {
 
   const apiKey = db.settings ? db.settings.smsApiKey : "";
   if (apiKey) {
-    // Send real SMS via Fast2SMS bulkV2 OTP API (using standard https module)
+    // Send real SMS via Fast2SMS bulkV2 API (using standard https module)
     const https = require('https');
-    const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(apiKey)}&variables_values=${otp}&route=otp&numbers=${phone}`;
     
-    https.get(url, (apiRes) => {
+    const senderId = db.settings.smsSenderId;
+    const templateId = db.settings.smsTemplateId;
+    
+    let url = "";
+    if (senderId && templateId) {
+      // DLT SMS route (compliant with TRAI regulations in India)
+      url = `https://www.fast2sms.com/dev/bulkV2?sender_id=${encodeURIComponent(senderId)}&message=${encodeURIComponent(templateId)}&variables_values=${otp}&route=dlt&numbers=${phone}`;
+    } else {
+      // Standard Quick SMS route fallback
+      url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(apiKey)}&variables_values=${otp}&route=otp&numbers=${phone}`;
+    }
+
+    const options = {
+      headers: {
+        'Authorization': apiKey
+      }
+    };
+    
+    https.get(url, options, (apiRes) => {
       let data = '';
       apiRes.on('data', (chunk) => { data += chunk; });
       apiRes.on('end', () => {
-        console.log("Fast2SMS API Response:", data);
+        console.log("Fast2SMS DLT API Response:", data);
       });
     }).on('error', (err) => {
-      console.error("Fast2SMS API Error:", err);
+      console.error("Fast2SMS DLT API Error:", err);
     });
   } else {
     // Expose OTP only if no real SMS API key is configured (mock development mode)
@@ -780,10 +797,12 @@ app.get('/api/admin/settings', (req, res) => {
 });
 
 app.post('/api/admin/settings', (req, res) => {
-  const { webhookUrl, smsApiKey } = req.body;
+  const { webhookUrl, smsApiKey, smsSenderId, smsTemplateId } = req.body;
   const db = readDB();
   db.settings.webhookUrl = webhookUrl;
   db.settings.smsApiKey = smsApiKey || "";
+  db.settings.smsSenderId = smsSenderId || "";
+  db.settings.smsTemplateId = smsTemplateId || "";
   writeDB(db);
   res.status(200).json({ message: "सेटिंग्स अपडेट हो गई हैं!" });
 });

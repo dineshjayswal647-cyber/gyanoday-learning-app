@@ -1715,12 +1715,14 @@ function initAdminPanel() {
       e.preventDefault();
       const webhookUrl = document.getElementById('discordWebhookUrl').value.trim();
       const smsApiKey = document.getElementById('smsApiKey').value.trim();
+      const smsSenderId = document.getElementById('smsSenderId').value.trim();
+      const smsTemplateId = document.getElementById('smsTemplateId').value.trim();
       
       try {
         const response = await fetch(`${API_URL}/api/admin/settings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ webhookUrl, smsApiKey })
+          body: JSON.stringify({ webhookUrl, smsApiKey, smsSenderId, smsTemplateId })
         });
         if (response.ok) {
           alert("सेटिंग्स सफलतापूर्वक सेव हो गई हैं!");
@@ -2002,6 +2004,10 @@ async function loadAdminSettings() {
       if (discordInput) discordInput.value = settings.webhookUrl || '';
       const smsInput = document.getElementById('smsApiKey');
       if (smsInput) smsInput.value = settings.smsApiKey || '';
+      const senderInput = document.getElementById('smsSenderId');
+      if (senderInput) senderInput.value = settings.smsSenderId || '';
+      const templateInput = document.getElementById('smsTemplateId');
+      if (templateInput) templateInput.value = settings.smsTemplateId || '';
     }
   } catch (e) {
     console.warn("Unable to fetch settings.", e);

@@ -847,7 +847,7 @@
             <!-- Webhook Card -->
             <div class="admin-settings-card">
               <h3><i class="fa-solid fa-bell"></i> फोन नोटिफिकेशन व SMS सेटिंग्स</h3>
-              <p class="admin-meta-desc">छात्रों को वास्तविक SMS भेजने के लिए Fast2SMS API की डालें और लॉग्स के लिए Discord Webhook URL डालें।</p>
+              <p class="admin-meta-desc">छात्रों को वास्तविक SMS भेजने के लिए Fast2SMS API और DLT सेटिंग्स डालें, तथा लॉग्स के लिए Discord Webhook URL डालें।</p>
               <form id="adminSettingsForm" class="admin-form">
                 <div class="form-group">
                   <label for="discordWebhookUrl">Discord Webhook URL:</label>
@@ -856,6 +856,14 @@
                 <div class="form-group" style="margin-top: 10px;">
                   <label for="smsApiKey">Fast2SMS API Key (SMS OTP के लिए):</label>
                   <input type="text" id="smsApiKey" placeholder="Fast2SMS API Key दर्ज करें...">
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="smsSenderId">DLT Sender ID (जैसे FSTSMS):</label>
+                  <input type="text" id="smsSenderId" placeholder="DLT-approved Sender ID...">
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="smsTemplateId">DLT Template ID (Message ID):</label>
+                  <input type="text" id="smsTemplateId" placeholder="DLT-approved Message/Template ID...">
                 </div>
                 <button type="submit" class="btn btn-secondary btn-block" style="margin-top: 15px;">सेटिंग्स सेव करें</button>
               </form>
