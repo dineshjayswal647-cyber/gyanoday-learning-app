@@ -1003,6 +1003,13 @@ function playLecture(videoId, title, subjectId) {
   liveTab.videoId = videoId;
   liveTab.teacher = mockData.subjects[subjectId].teacher;
   liveTab.subject = subjectId;
+
+  if (!state.completedLectures) state.completedLectures = [];
+  const itemId = `${subjectId}_${videoId}`;
+  if (!state.completedLectures.includes(itemId)) {
+    state.completedLectures.push(itemId);
+    saveState();
+  }
   
   switchTab('live');
 }
@@ -1219,6 +1226,13 @@ function openNotesPDF(subId, chId, noteId) {
   const reader = document.getElementById('pdfReaderSection');
   reader.style.display = 'flex';
   document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
+
+  if (!state.completedLectures) state.completedLectures = [];
+  const itemId = `${subId}_${noteId}`;
+  if (!state.completedLectures.includes(itemId)) {
+    state.completedLectures.push(itemId);
+    saveState();
+  }
 
   if (note.content.startsWith('/uploads/')) {
     const fullPdfUrl = `${API_URL}${note.content}`;
@@ -1572,6 +1586,64 @@ function updateProfileStats() {
         const initials = parts.map(p => p.charAt(0)).join('').toUpperCase().substring(0, 2);
         avatarEl.textContent = initials || 'DJ';
       }
+    }
+
+    // Render dynamic progress bars based on actual completed lectures and notes
+    const progressContainer = document.getElementById('profileProgressBarsContainer');
+    if (progressContainer) {
+      progressContainer.innerHTML = '';
+      
+      const subjectNames = {
+        'science': 'विज्ञान (Science)',
+        'maths': 'गणित (Maths)',
+        'social-science': 'सामाजिक विज्ञान',
+        'hindi': 'हिन्दी (Hindi)',
+        'english': 'अंग्रेजी (English)'
+      };
+
+      Object.keys(mockData.subjects).forEach(subId => {
+        const subject = mockData.subjects[subId];
+        let totalItems = 0;
+        let completedItems = 0;
+
+        if (subject.chapters) {
+          subject.chapters.forEach(ch => {
+            totalItems += (ch.lectures ? ch.lectures.length : 0);
+            totalItems += (ch.notes ? ch.notes.length : 0);
+
+            if (ch.lectures) {
+              ch.lectures.forEach(lec => {
+                const itemId = `${subId}_${lec.videoId}`;
+                if (state.completedLectures && state.completedLectures.includes(itemId)) {
+                  completedItems++;
+                }
+              });
+            }
+
+            if (ch.notes) {
+              ch.notes.forEach(note => {
+                const itemId = `${subId}_${note.id}`;
+                if (state.completedLectures && state.completedLectures.includes(itemId)) {
+                  completedItems++;
+                }
+              });
+            }
+          });
+        }
+
+        const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+        const progItem = document.createElement('div');
+        progItem.className = 'subject-prog-item';
+        progItem.innerHTML = `
+          <div class="prog-info">
+            <span>${subjectNames[subId] || subject.title}</span>
+            <span>${percentage}% पूरा</span>
+          </div>
+          <div class="prog-track"><div class="prog-bar" style="width: ${percentage}%;"></div></div>
+        `;
+        progressContainer.appendChild(progItem);
+      });
     }
   }
 }
