@@ -39,6 +39,7 @@ let state = {
 };
 
 let adminPanelOriginalHTML = '';
+let originalSubjects = null;
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -46,6 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (adminView) {
     adminPanelOriginalHTML = adminView.innerHTML;
     adminView.innerHTML = '';
+  }
+
+  if (typeof mockData !== 'undefined' && mockData.subjects) {
+    originalSubjects = JSON.parse(JSON.stringify(mockData.subjects));
   }
 
   loadLocalStorage();
@@ -532,6 +537,10 @@ function configureLayoutForRole() {
 // Fetch custom uploaded chapters from server and merge them
 async function syncCustomContent() {
   try {
+    if (originalSubjects) {
+      mockData.subjects = JSON.parse(JSON.stringify(originalSubjects));
+    }
+
     const response = await fetch(`${API_URL}/api/chapters`);
     if (response.ok) {
       const customChapters = await response.json();

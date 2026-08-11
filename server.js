@@ -653,7 +653,19 @@ app.post('/api/admin/delete-item', (req, res) => {
 
   const db = readDB();
   if (db.customChapters[subjectId]) {
-    const chapter = db.customChapters[subjectId].find(c => c.id === chapterId);
+    // Find the chapter that contains the item by looking up the itemId directly (prevents client-side ID mismatch)
+    let chapter = null;
+    for (let c of db.customChapters[subjectId]) {
+      if (type === 'lecture' && c.lectures.some(l => l.id === itemId)) {
+        chapter = c;
+        break;
+      }
+      if (type === 'note' && c.notes.some(n => n.id === itemId)) {
+        chapter = c;
+        break;
+      }
+    }
+
     if (chapter) {
       if (type === 'lecture') {
         chapter.lectures = chapter.lectures.filter(l => l.id !== itemId);
