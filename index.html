@@ -846,14 +846,18 @@
 
             <!-- Webhook Card -->
             <div class="admin-settings-card">
-              <h3><i class="fa-solid fa-bell"></i> फोन नोटिफिकेशन सेटिंग्स</h3>
-              <p class="admin-meta-desc">जब कोई नया छात्र साइन-अप करेगा, तो आपको अपने फोन पर तुरंत सूचना मिलेगी (Discord Webhook द्वारा)।</p>
+              <h3><i class="fa-solid fa-bell"></i> फोन नोटिफिकेशन व SMS सेटिंग्स</h3>
+              <p class="admin-meta-desc">छात्रों को वास्तविक SMS भेजने के लिए Fast2SMS API की डालें और लॉग्स के लिए Discord Webhook URL डालें।</p>
               <form id="adminSettingsForm" class="admin-form">
                 <div class="form-group">
                   <label for="discordWebhookUrl">Discord Webhook URL:</label>
                   <input type="url" id="discordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
                 </div>
-                <button type="submit" class="btn btn-secondary btn-block">सेटिंग्स सेव करें</button>
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="smsApiKey">Fast2SMS API Key (SMS OTP के लिए):</label>
+                  <input type="text" id="smsApiKey" placeholder="Fast2SMS API Key दर्ज करें...">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-block" style="margin-top: 15px;">सेटिंग्स सेव करें</button>
               </form>
             </div>
 

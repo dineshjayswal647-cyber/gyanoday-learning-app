@@ -253,7 +253,7 @@ function setupGyanodayAuthHandlers() {
         // Offline demo fallback login
         console.warn("Server offline, using mock local credentials check.", err);
         if (username === "9838691892" && password === "12345629") {
-          const user = { name: "दिनेश जायसवाल (Admin)", phone: "9838691892", role: "admin", email: "dinesh@djacademy.com" };
+          const user = { name: "दिनेश जायसवाल (Admin)", phone: "9838691892", role: "admin", email: "dinesh@djacademy.com", photo: "admin_photo.jpg" };
           localStorage.setItem('dj_user', JSON.stringify(user));
           state.user = user;
           statusDiv.className = 'auth-status success';
@@ -364,7 +364,9 @@ function setupGyanodayAuthHandlers() {
             otpCodeGroup.style.display = 'block';
             document.getElementById('btnGYOTPAction').textContent = "Verify OTP";
             
-            showMockOTPPill(data.otp);
+            if (data.otp) {
+              showMockOTPPill(data.otp);
+            }
             document.getElementById('gyOTPCode').value = '';
             document.getElementById('gyOTPCode').focus();
           } else {
@@ -1700,15 +1702,16 @@ function initAdminPanel() {
     settingsForm.onsubmit = async (e) => {
       e.preventDefault();
       const webhookUrl = document.getElementById('discordWebhookUrl').value.trim();
+      const smsApiKey = document.getElementById('smsApiKey').value.trim();
       
       try {
         const response = await fetch(`${API_URL}/api/admin/settings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ webhookUrl })
+          body: JSON.stringify({ webhookUrl, smsApiKey })
         });
         if (response.ok) {
-          alert("वेबहुक सेटिंग्स सेव हो गई हैं!");
+          alert("सेटिंग्स सफलतापूर्वक सेव हो गई हैं!");
         } else {
           alert("अपडेट विफल!");
         }
@@ -1985,6 +1988,8 @@ async function loadAdminSettings() {
       const settings = await response.json();
       const discordInput = document.getElementById('discordWebhookUrl');
       if (discordInput) discordInput.value = settings.webhookUrl || '';
+      const smsInput = document.getElementById('smsApiKey');
+      if (smsInput) smsInput.value = settings.smsApiKey || '';
     }
   } catch (e) {
     console.warn("Unable to fetch settings.", e);

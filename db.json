@@ -4,7 +4,8 @@
       "phone": "9838691892",
       "name": "दिनेश जायसवाल (Admin)",
       "role": "admin",
-      "password": "12345629"
+      "password": "12345629",
+      "photo": "admin_photo.jpg"
     }
   ],
   "customChapters": {
@@ -60,7 +61,8 @@
     }
   ],
   "settings": {
-    "webhookUrl": ""
+    "webhookUrl": "",
+    "smsApiKey": ""
   },
   "liveClass": null,
   "schedule": [
@@ -120,5 +122,6 @@
       "subject": "---",
       "topic": "साप्ताहिक अवकाश (Holiday)"
     }
-  ]
+  ],
+  "quizzes": []
 }

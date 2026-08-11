@@ -281,11 +281,32 @@ app.post('/api/auth/send-otp', (req, res) => {
     { name: "🔑 OTP कोड", value: `**${otp}**`, inline: true }
   ]);
 
-  res.status(200).json({
+  const responseData = {
     message: "OTP सफलतापूर्वक भेजा गया!",
-    exists: userExists,
-    otp: otp 
-  });
+    exists: userExists
+  };
+
+  const apiKey = db.settings ? db.settings.smsApiKey : "";
+  if (apiKey) {
+    // Send real SMS via Fast2SMS bulkV2 OTP API (using standard https module)
+    const https = require('https');
+    const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(apiKey)}&variables_values=${otp}&route=otp&numbers=${phone}`;
+    
+    https.get(url, (apiRes) => {
+      let data = '';
+      apiRes.on('data', (chunk) => { data += chunk; });
+      apiRes.on('end', () => {
+        console.log("Fast2SMS API Response:", data);
+      });
+    }).on('error', (err) => {
+      console.error("Fast2SMS API Error:", err);
+    });
+  } else {
+    // Expose OTP only if no real SMS API key is configured (mock development mode)
+    responseData.otp = otp;
+  }
+
+  res.status(200).json(responseData);
 });
 
 // 4. Verify OTP and login
@@ -738,9 +759,10 @@ app.get('/api/admin/settings', (req, res) => {
 });
 
 app.post('/api/admin/settings', (req, res) => {
-  const { webhookUrl } = req.body;
+  const { webhookUrl, smsApiKey } = req.body;
   const db = readDB();
   db.settings.webhookUrl = webhookUrl;
+  db.settings.smsApiKey = smsApiKey || "";
   writeDB(db);
   res.status(200).json({ message: "सेटिंग्स अपडेट हो गई हैं!" });
 });
