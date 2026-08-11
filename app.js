@@ -765,28 +765,29 @@ async function initDashboard() {
   }
 
   const batchCardContainer = document.getElementById('dashboardBatchCard');
-  const isEnrolled = state.enrolledBatches.includes('sankalp-batch');
-  
-  if (isEnrolled) {
-    batchCardContainer.innerHTML = `
-      <img src="logo.jpg" alt="Sankalp Logo" class="enrolled-batch-img">
-      <div class="eb-info">
-        <h4>संकल्प बैच 2027 (UP Board Class 10)</h4>
-        <p>प्रगति: गणित (25%), विज्ञान (50%) पूरा | दैनिक टेस्ट जारी</p>
-      </div>
-      <div class="eb-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-    `;
-    batchCardContainer.onclick = () => switchTab('batches');
-  } else {
-    batchCardContainer.innerHTML = `
-      <img src="logo.jpg" alt="Sankalp Logo" class="enrolled-batch-img">
-      <div class="eb-info">
-        <h4>संकल्प बैच 2027 में एनरोल नहीं हैं</h4>
-        <p>यूपी बोर्ड परीक्षा के सभी विषयों के क्लासेस के लिए अभी ज्वाइन करें (फ्री)</p>
-      </div>
-      <div class="eb-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-    `;
-    batchCardContainer.onclick = () => switchTab('batches');
+  if (batchCardContainer) {
+    const isEnrolled = state.enrolledBatches.includes('sankalp-batch');
+    if (isEnrolled) {
+      batchCardContainer.innerHTML = `
+        <img src="logo.jpg" alt="Sankalp Logo" class="enrolled-batch-img">
+        <div class="eb-info">
+          <h4>संकल्प बैच 2027 (UP Board Class 10)</h4>
+          <p>प्रगति: गणित (25%), विज्ञान (50%) पूरा | दैनिक टेस्ट जारी</p>
+        </div>
+        <div class="eb-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      `;
+      batchCardContainer.onclick = () => switchTab('batches');
+    } else {
+      batchCardContainer.innerHTML = `
+        <img src="logo.jpg" alt="Sankalp Logo" class="enrolled-batch-img">
+        <div class="eb-info">
+          <h4>संकल्प बैच 2027 में एनरोल नहीं हैं</h4>
+          <p>यूपी बोर्ड परीक्षा के सभी विषयों के क्लासेस के लिए अभी ज्वाइन करें (फ्री)</p>
+        </div>
+        <div class="eb-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      `;
+      batchCardContainer.onclick = () => switchTab('batches');
+    }
   }
 
   // Load the weekly class schedule dynamically
@@ -2734,11 +2735,7 @@ window.renderPDFOffline = function(pdfUrl) {
 
   try {
     // Configure PDF.js worker
-    if (window.location.protocol === 'file:') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-    } else {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
-    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
 
     // Load PDF using XMLHttpRequest (which supports file:// when configured)
     const xhr = new XMLHttpRequest();

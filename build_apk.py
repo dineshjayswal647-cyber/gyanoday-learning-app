@@ -131,7 +131,12 @@ import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import androidx.appcompat.app.AppCompatActivity;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -160,6 +165,36 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
                 return true;
+            }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                if (url.startsWith("file:///android_asset/")) {
+                    try {
+                        String path = url.replace("file:///android_asset/", "");
+                        if (path.contains("?")) {
+                            path = path.substring(0, path.indexOf("?"));
+                        }
+                        InputStream stream = getAssets().open(path);
+                        String mimeType = "application/octet-stream";
+                        if (path.endsWith(".html")) mimeType = "text/html";
+                        else if (path.endsWith(".css")) mimeType = "text/css";
+                        else if (path.endsWith(".js")) mimeType = "application/javascript";
+                        else if (path.endsWith(".png")) mimeType = "image/png";
+                        else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) mimeType = "image/jpeg";
+                        else if (path.endsWith(".pdf")) mimeType = "application/pdf";
+                        
+                        WebResourceResponse response = new WebResourceResponse(mimeType, "UTF-8", stream);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Access-Control-Allow-Origin", "*");
+                        response.setResponseHeaders(headers);
+                        return response;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return super.shouldInterceptRequest(view, request);
             }
         });
 
