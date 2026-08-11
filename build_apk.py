@@ -148,7 +148,12 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
         webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        webSettings.setSupportZoom(false);
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setDisplayZoomControls(false);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -214,6 +219,9 @@ def build_and_install():
         print("Build Succeeded!")
         apk_path = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk", "debug", "app-debug.apk")
         if os.path.exists(apk_path):
+            # Copy to the root workspace for easy access
+            shutil.copy(apk_path, r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\DJ-Academy-Learning.apk")
+            print("Successfully copied compiled APK to workspace root as DJ-Academy-Learning.apk!")
             print("Installing APK directly to mobile via ADB...")
             install_proc = subprocess.run([ADB_PATH, "install", "-r", apk_path], shell=True)
             if install_proc.returncode == 0:

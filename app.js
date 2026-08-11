@@ -2386,18 +2386,18 @@ window.initBooksExplorer = function() {
   tabsContainer.innerHTML = '';
   
   const subjects = {
-    'maths': { title: '📐 गणित (Maths)', icon: '📐' },
-    'science': { title: '🧪 विज्ञान (Science)', icon: '🧪' },
-    'social-science': { title: '🌍 सा. विज्ञान', icon: '🌍' },
-    'hindi': { title: '✍️ हिन्दी', icon: '✍️' },
-    'english': { title: '📖 अंग्रेजी', icon: '📖' }
+    'maths': { title: 'गणित', icon: '📐' },
+    'science': { title: 'विज्ञान', icon: '🧪' },
+    'social-science': { title: 'सामाजिक विज्ञान', icon: '🌍' },
+    'hindi': { title: 'हिन्दी', icon: '✍️' },
+    'english': { title: 'अंग्रेजी', icon: '📖' }
   };
 
   Object.keys(subjects).forEach(subId => {
     const sub = subjects[subId];
     const button = document.createElement('button');
     button.className = `sub-tab ${activeBookSubjectId === subId ? 'active' : ''}`;
-    button.innerHTML = `<span>${sub.icon}</span> ${sub.title.split(' ')[1] || sub.title}`;
+    button.innerHTML = `<span>${sub.icon}</span> ${sub.title}`;
     button.onclick = () => {
       activeBookSubjectId = subId;
       initBooksExplorer();
@@ -2518,7 +2518,12 @@ window.renderPDFOffline = function(pdfUrl) {
 
   try {
     // Configure PDF.js worker to run completely offline/client-side
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
+    if (window.location.protocol === 'file:') {
+      // Disable web worker on file:// protocol to avoid SecurityError in WebView
+      delete pdfjsLib.GlobalWorkerOptions.workerSrc;
+    } else {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
+    }
     
     pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
       container.innerHTML = ''; // Clear loading spinner

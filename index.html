@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff6f00">
-  <!-- Local Mozilla PDF.js for offline in-app PDF rendering -->
   <script src="pdf.min.js"></script>
+  <script src="pdf.worker.min.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -535,8 +535,7 @@
           <button class="btn btn-secondary" onclick="switchTab('dashboard')" style="padding: 6px 12px; font-size: 13px;"><i class="fa-solid fa-arrow-left"></i> वापस जाएं</button>
         </div>
 
-        <!-- Subject Select Tab inside Books screen -->
-        <div class="subject-tabs" id="bookSubjectTabs" style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+        <div class="subject-tabs-container" id="bookSubjectTabs">
           <!-- Dynamically populated -->
         </div>
 
@@ -766,6 +765,8 @@
                     <option value="maths">गणित (Maths)</option>
                     <option value="science">विज्ञान (Science)</option>
                     <option value="social-science">सामाजिक विज्ञान</option>
+                    <option value="hindi">हिन्दी</option>
+                    <option value="english">अंग्रेजी</option>
                   </select>
                 </div>
                 <div class="form-group">
