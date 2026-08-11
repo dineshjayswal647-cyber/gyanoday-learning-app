@@ -189,7 +189,7 @@ app.post('/api/auth/login', (req, res) => {
 
   res.status(200).json({
     message: "लॉगिन सफल!",
-    user: { name: user.name, phone: user.phone, role: user.role, email: user.email }
+    user: { name: user.name, phone: user.phone, role: user.role, email: user.email, photo: user.photo || "" }
   });
 });
 
@@ -214,6 +214,7 @@ app.post('/api/auth/register', (req, res) => {
     email: email || "",
     password,
     role: "student",
+    photo: "",
     enrolledDate: new Date().toLocaleDateString('hi-IN')
   };
 
@@ -236,8 +237,25 @@ app.post('/api/auth/register', (req, res) => {
 
   res.status(201).json({
     message: "रजिस्ट्रेशन सफल!",
-    user: { name: newUser.name, phone: newUser.phone, role: newUser.role, email: newUser.email }
+    user: { name: newUser.name, phone: newUser.phone, role: newUser.role, email: newUser.email, photo: newUser.photo }
   });
+});
+
+// Update user profile photo
+app.post('/api/user/update-photo', (req, res) => {
+  const { phone, photo } = req.body;
+  if (!phone || !photo) {
+    return res.status(400).json({ error: "मोबाइल नंबर और फोटो आवश्यक हैं।" });
+  }
+
+  const db = readDB();
+  const user = db.users.find(u => u.phone === phone);
+  if (user) {
+    user.photo = photo;
+    writeDB(db);
+    return res.status(200).json({ message: "प्रोफ़ाइल फ़ोटो सफलतापूर्वक अपडेट की गई।" });
+  }
+  res.status(404).json({ error: "यूज़र नहीं मिला।" });
 });
 
 // 3. Send OTP

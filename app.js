@@ -502,8 +502,23 @@ function configureLayoutForRole() {
   document.querySelector('.sidebar-footer .user-name').textContent = state.user.name.split(' ')[0] + ' ' + (state.user.name.split(' ')[1] || '');
   document.querySelector('.sidebar-footer .user-role').textContent = state.user.role === 'admin' ? 'शिक्षक (Admin)' : 'कक्षा 10 छात्र';
   
-  const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  document.querySelector('.sidebar-footer .user-avatar').textContent = initials;
+  const userAvatar = document.querySelector('.sidebar-footer .user-avatar');
+  if (userAvatar) {
+    if (state.user.photo) {
+      userAvatar.style.backgroundImage = `url(${state.user.photo})`;
+      userAvatar.style.backgroundSize = 'cover';
+      userAvatar.style.backgroundPosition = 'center';
+      userAvatar.textContent = '';
+      userAvatar.style.color = 'transparent';
+    } else {
+      userAvatar.style.backgroundImage = 'none';
+      userAvatar.style.color = 'white';
+      const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      userAvatar.textContent = initials;
+    }
+  }
+
+  updateProfileStats();
 
   if (state.user.role === 'admin') {
     const adminView = document.getElementById('view-admin');
@@ -1506,7 +1521,79 @@ function updateProfileStats() {
   const avgPercentage = totalQuizzesGiven > 0 ? Math.round(totalPercentage / totalQuizzesGiven) : 0;
   const profileAvgScore = document.getElementById('profileAvgScore');
   if (profileAvgScore) profileAvgScore.textContent = `${avgPercentage}%`;
+
+  // Dynamically populate user details
+  if (state.user) {
+    const nameEl = document.getElementById('profileUserName');
+    const emailEl = document.getElementById('profileEmail');
+    const phoneEl = document.getElementById('profilePhone');
+    const tagEl = document.getElementById('profileUserTag');
+    const avatarEl = document.getElementById('profileAvatar');
+
+    if (nameEl) nameEl.textContent = state.user.name;
+    if (emailEl) emailEl.textContent = state.user.email || "दर्ज नहीं किया गया";
+    if (phoneEl) phoneEl.textContent = state.user.phone || "दर्ज नहीं किया गया";
+    
+    // Set tag based on user role
+    if (tagEl) {
+      if (state.user.role === 'admin') {
+        tagEl.textContent = "डीजे एकेडमी शिक्षक (Admin)";
+      } else {
+        tagEl.textContent = "कक्षा 10 छात्र | यूपी बोर्ड 2027 (हिन्दी माध्यम)";
+      }
+    }
+
+    // Handle profile avatar initials and background photo
+    if (avatarEl) {
+      if (state.user.photo) {
+        avatarEl.style.backgroundImage = `url(${state.user.photo})`;
+        avatarEl.style.color = 'transparent'; // Hide initials text
+        avatarEl.style.border = '4px solid var(--accent-saffron)';
+      } else {
+        avatarEl.style.backgroundImage = 'none';
+        avatarEl.style.color = 'white';
+        avatarEl.style.border = '4px solid var(--bg-card)';
+        // Get initials from name
+        const parts = state.user.name.split(' ');
+        const initials = parts.map(p => p.charAt(0)).join('').toUpperCase().substring(0, 2);
+        avatarEl.textContent = initials || 'DJ';
+      }
+    }
+  }
 }
+
+window.uploadProfilePhoto = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64Data = e.target.result;
+    
+    if (state.user) {
+      state.user.photo = base64Data;
+      
+      // Update local storage user state
+      localStorage.setItem('dj_user', JSON.stringify(state.user));
+      saveState();
+      
+      // Update display immediately
+      updateProfileStats();
+      
+      // Upload to server
+      try {
+        await fetch(`${API_URL}/api/user/update-photo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: state.user.phone, photo: base64Data })
+        });
+      } catch (err) {
+        console.warn("Offline, photo upload skipped.", err);
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+};
 
 function resetAppData() {
   if (confirm("क्या आप सचमुच अपना सभी डेटा रीसेट करना चाहते हैं? इसमें एनरोलमेंट और टेस्ट स्कोर शामिल हैं।")) {

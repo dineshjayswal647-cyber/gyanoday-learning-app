@@ -444,9 +444,14 @@
           <!-- Profile Card -->
           <div class="profile-card">
             <div class="profile-header-accent"></div>
-            <div class="profile-avatar-large">DJ</div>
-            <h2 class="profile-user-name">दिनेश जायसवाल</h2>
-            <span class="profile-user-tag">कक्षा 10 छात्र | यूपी बोर्ड (हिन्दी माध्यम)</span>
+            <div class="profile-avatar-large" id="profileAvatar" onclick="document.getElementById('profilePhotoInput').click()" style="cursor: pointer; position: relative; background-size: cover; background-position: center; transition: transform var(--transition-fast);">
+              DJ
+              <div style="position: absolute; bottom: 0; right: 0; background: var(--accent-saffron); border: 2px solid var(--bg-card); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; box-shadow: var(--shadow-sm);"><i class="fa-solid fa-camera"></i></div>
+            </div>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" onchange="window.uploadProfilePhoto(event)">
+            
+            <h2 class="profile-user-name" id="profileUserName">दिनेश जायसवाल</h2>
+            <span class="profile-user-tag" id="profileUserTag">कक्षा 10 छात्र | यूपी बोर्ड (हिन्दी माध्यम)</span>
             
             <div class="profile-stats-row">
               <div class="p-stat">
@@ -466,15 +471,15 @@
             <div class="profile-details-list">
               <div class="p-detail-item">
                 <span class="det-label">ईमेल:</span>
-                <span class="det-val">dinesh.jaiswal@example.com</span>
+                <span class="det-val" id="profileEmail">dinesh.jaiswal@example.com</span>
               </div>
               <div class="p-detail-item">
                 <span class="det-label">मोबाइल:</span>
-                <span class="det-val">+91 98765 43210</span>
+                <span class="det-val" id="profilePhone">+91 98765 43210</span>
               </div>
               <div class="p-detail-item">
                 <span class="det-label">टारगेट परीक्षा:</span>
-                <span class="det-val">यूपी बोर्ड 10वीं परीक्षा 2027</span>
+                <span class="det-val" id="profileTarget">यूपी बोर्ड 10वीं परीक्षा 2027</span>
               </div>
             </div>
 
