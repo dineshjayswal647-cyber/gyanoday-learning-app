@@ -258,6 +258,27 @@ app.post('/api/user/update-photo', (req, res) => {
   res.status(404).json({ error: "यूज़र नहीं मिला।" });
 });
 
+// Retrieve latest user profile data
+app.get('/api/user/profile', (req, res) => {
+  const { phone } = req.query;
+  if (!phone) {
+    return res.status(400).json({ error: "मोबाइल नंबर आवश्यक है।" });
+  }
+
+  const db = readDB();
+  const user = db.users.find(u => u.phone === phone);
+  if (user) {
+    return res.status(200).json({
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      email: user.email || "",
+      photo: user.photo || ""
+    });
+  }
+  res.status(404).json({ error: "यूज़र नहीं मिला।" });
+});
+
 // 3. Send OTP
 app.post('/api/auth/send-otp', (req, res) => {
   const { phone } = req.body;

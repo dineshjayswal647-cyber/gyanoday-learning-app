@@ -138,6 +138,18 @@ function checkAuthentication() {
       // Setup layout based on role
       configureLayoutForRole();
       
+      // Fetch latest profile data from server to keep name, photo, etc., synced
+      fetch(`${API_URL}/api/user/profile?phone=${state.user.phone}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(updatedUser => {
+          if (updatedUser) {
+            state.user = { ...state.user, ...updatedUser };
+            localStorage.setItem('dj_user', JSON.stringify(state.user));
+            configureLayoutForRole();
+          }
+        })
+        .catch(err => console.warn("Failed to fetch profile updates:", err));
+      
       // Load custom chapters from backend server
       syncCustomContent()
         .catch(err => console.warn("Failed to sync custom content:", err))
