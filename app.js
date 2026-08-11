@@ -2517,85 +2517,105 @@ window.renderPDFOffline = function(pdfUrl) {
   `;
 
   try {
-    // Configure PDF.js worker to run completely offline/client-side
+    // Configure PDF.js worker
     if (window.location.protocol === 'file:') {
-      // Disable web worker on file:// protocol to avoid SecurityError in WebView
-      delete pdfjsLib.GlobalWorkerOptions.workerSrc;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '';
     } else {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
     }
+
+    // Load PDF using XMLHttpRequest (which supports file:// when configured)
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', pdfUrl, true);
+    xhr.responseType = 'arraybuffer';
     
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
-      container.innerHTML = ''; // Clear loading spinner
-      
-      // Load and render all pages of the book chapter sequentially
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const pageDiv = document.createElement('div');
-        pageDiv.className = 'pdf-page-container';
-        pageDiv.style.marginBottom = '20px';
-        pageDiv.style.backgroundColor = '#ffffff';
-        pageDiv.style.borderRadius = '8px';
-        pageDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
-        pageDiv.style.overflow = 'hidden';
-        pageDiv.style.display = 'flex';
-        pageDiv.style.flexDirection = 'column';
-        pageDiv.style.alignItems = 'center';
-        pageDiv.style.padding = '10px';
-        
-        const pageLabel = document.createElement('div');
-        pageLabel.style.fontSize = '11px';
-        pageLabel.style.color = '#555555';
-        pageLabel.style.marginBottom = '5px';
-        pageLabel.textContent = `पेज ${pageNum} / ${pdf.numPages}`;
-        pageDiv.appendChild(pageLabel);
+    xhr.onload = function() {
+      if (this.status === 200 || (window.location.protocol === 'file:' && this.status === 0)) {
+        const arrayBuffer = this.response;
+        if (arrayBuffer) {
+          pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise.then(function(pdf) {
+            container.innerHTML = ''; // Clear loading spinner
+            
+            // Load and render all pages of the book chapter sequentially
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              const pageDiv = document.createElement('div');
+              pageDiv.className = 'pdf-page-container';
+              pageDiv.style.marginBottom = '20px';
+              pageDiv.style.backgroundColor = '#ffffff';
+              pageDiv.style.borderRadius = '8px';
+              pageDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+              pageDiv.style.overflow = 'hidden';
+              pageDiv.style.display = 'flex';
+              pageDiv.style.flexDirection = 'column';
+              pageDiv.style.alignItems = 'center';
+              pageDiv.style.padding = '10px';
+              
+              const pageLabel = document.createElement('div');
+              pageLabel.style.fontSize = '11px';
+              pageLabel.style.color = '#555555';
+              pageLabel.style.marginBottom = '5px';
+              pageLabel.textContent = `पेज ${pageNum} / ${pdf.numPages}`;
+              pageDiv.appendChild(pageLabel);
 
-        const canvas = document.createElement('canvas');
-        canvas.style.width = '100%';
-        canvas.style.height = 'auto';
-        canvas.style.borderRadius = '4px';
-        pageDiv.appendChild(canvas);
-        container.appendChild(pageDiv);
+              const canvas = document.createElement('canvas');
+              canvas.style.width = '100%';
+              canvas.style.height = 'auto';
+              canvas.style.borderRadius = '4px';
+              pageDiv.appendChild(canvas);
+              container.appendChild(pageDiv);
 
-        pdf.getPage(pageNum).then(function(page) {
-          const viewport = page.getViewport({ scale: 1.5 });
-          const context = canvas.getContext('2d');
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
+              pdf.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
-          page.render(renderContext);
-        });
-      }
-    }).catch(function(err) {
-      console.error("PDF.js loading error:", err);
-      // Fallback: If it's a relative path, try rendering via online server URL
-      if (!pdfUrl.startsWith('http')) {
-        const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfUrl}`;
-        renderPDFOffline(serverPdfUrl);
+                const renderContext = {
+                  canvasContext: context,
+                  viewport: viewport
+                };
+                page.render(renderContext);
+              });
+            }
+          }).catch(function(err) {
+            console.error("PDFJS render error:", err);
+            handleLoadError();
+          });
+        } else {
+          handleLoadError();
+        }
       } else {
-        container.innerHTML = `
-          <div style="text-align:center; padding:30px; color:var(--accent-live);">
-            <p>पीडीएफ लोड करने में विफल! इंटरनेट कनेक्शन चेक करें या बाहरी ब्राउज़र में खोलें:</p>
-            <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
-              <i class="fa-solid fa-up-right-from-square"></i> ब्राउज़र में खोलें
-            </a>
-          </div>
-        `;
+        handleLoadError();
       }
-    });
+    };
+
+    xhr.onerror = function() {
+      console.error("XHR error loading PDF");
+      handleLoadError();
+    };
+
+    xhr.send();
+
   } catch (err) {
     console.error("PDF.js initialization error:", err);
-    container.innerHTML = `
-      <div style="text-align:center; padding:30px; color:var(--accent-live);">
-        <p>पीडीएफ लाइब्रेरी लोड नहीं हो पाई!</p>
-        <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
-          <i class="fa-solid fa-up-right-from-square"></i> बाहरी ब्राउज़र में खोलें
-        </a>
-      </div>
-    `;
+    handleLoadError();
+  }
+
+  function handleLoadError() {
+    // Fallback: If it's a relative path, try rendering via online server URL
+    if (!pdfUrl.startsWith('http')) {
+      const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfUrl}`;
+      renderPDFOffline(serverPdfUrl);
+    } else {
+      container.innerHTML = `
+        <div style="text-align:center; padding:30px; color:var(--accent-live);">
+          <p>पीडीएफ लोड करने में विफल! इंटरनेट कनेक्शन चेक करें या बाहरी ब्राउज़र में खोलें:</p>
+          <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
+            <i class="fa-solid fa-up-right-from-square"></i> बाहरी ब्राउज़र में खोलें
+          </a>
+        </div>
+      `;
+    }
   }
 };
 
