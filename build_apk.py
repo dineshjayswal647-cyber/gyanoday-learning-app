@@ -193,6 +193,36 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                } else if (url.startsWith("https://gyanoday-learning-app.onrender.com/")) {
+                    try {
+                        java.net.URL urlObj = new java.net.URL(url);
+                        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) urlObj.openConnection();
+                        conn.setRequestMethod(request.getMethod());
+                        
+                        for (Map.Entry<String, String> entry : request.getRequestHeaders().entrySet()) {
+                            conn.setRequestProperty(entry.getKey(), entry.getValue());
+                        }
+                        
+                        InputStream stream = conn.getInputStream();
+                        String mimeType = conn.getContentType();
+                        if (mimeType != null && mimeType.contains(";")) {
+                            mimeType = mimeType.split(";")[0];
+                        }
+                        if (mimeType == null) {
+                            mimeType = "application/octet-stream";
+                            if (url.endsWith(".pdf")) mimeType = "application/pdf";
+                        }
+                        
+                        WebResourceResponse response = new WebResourceResponse(mimeType, conn.getContentEncoding(), stream);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Access-Control-Allow-Origin", "*");
+                        headers.put("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                        headers.put("Access-Control-Allow-Headers", "*");
+                        response.setResponseHeaders(headers);
+                        return response;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 return super.shouldInterceptRequest(view, request);
             }
@@ -219,25 +249,27 @@ public class MainActivity extends AppCompatActivity {
     # Create assets folder in Android project
     assets_dir = os.path.join(PROJECT_DIR, "app", "src", "main", "assets")
     os.makedirs(assets_dir, exist_ok=True)
+    
+    # Clean up the books folder inside assets if it exists
+    books_dest = os.path.join(assets_dir, "books")
+    if os.path.exists(books_dest):
+        shutil.rmtree(books_dest)
 
     # Copy files to assets
     files_to_copy = [
         "index.html", "style.css", "app.js", "mockData.js", 
         "manifest.json", "sw.js", "banner.jpg", "logo.jpg",
-        "pdf.min.js", "pdf.worker.min.js"
+        "admin_photo.jpg", "pdf.min.js", "pdf.worker.min.js"
     ]
     for file_name in files_to_copy:
         src = os.path.join(r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app", file_name)
         if os.path.exists(src):
             shutil.copy(src, os.path.join(assets_dir, file_name))
 
-    # Copy books folder recursively if exists
-    books_src = r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\books"
-    if os.path.exists(books_src):
-        books_dest = os.path.join(assets_dir, "books")
-        if os.path.exists(books_dest):
-            shutil.rmtree(books_dest)
-        shutil.copytree(books_src, books_dest)
+    # We no longer copy the books folder into the APK assets.
+    # This keeps the APK size extremely low (approx. 4.7 MB), 
+    # and forces the books to be loaded from the online server over the internet.
+    pass
 
     # Copy logo.jpg as launcher icon
     src_logo = r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\logo.jpg"
