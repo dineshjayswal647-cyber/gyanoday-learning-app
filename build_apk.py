@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (url.startsWith("https://gyanoday-learning-app.onrender.com/")) {
+                } else if (url.startsWith("https://gyanoday-learning-app.onrender.com/") && (url.endsWith(".pdf") || url.contains("/books/") || url.contains("/uploads/"))) {
                     try {
                         java.net.URL urlObj = new java.net.URL(url);
                         java.net.HttpURLConnection conn = (java.net.HttpURLConnection) urlObj.openConnection();
