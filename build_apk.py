@@ -87,6 +87,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
 }
@@ -334,12 +335,12 @@ public class MainActivity extends AppCompatActivity {
 
 def build_and_install():
     print("Compiling Android App using Gradle (this might take a minute)...")
-    # Run gradle clean assembleDebug
-    process = subprocess.run([GRADLE_PATH, "clean", "assembleDebug"], cwd=PROJECT_DIR, env=env, shell=True)
+    # Run gradle clean assembleRelease
+    process = subprocess.run([GRADLE_PATH, "clean", "assembleRelease"], cwd=PROJECT_DIR, env=env, shell=True)
     
     if process.returncode == 0:
         print("Build Succeeded!")
-        apk_path = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk", "debug", "app-debug.apk")
+        apk_path = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk", "release", "app-release.apk")
         if os.path.exists(apk_path):
             # Copy to the root workspace for easy access
             shutil.copy(apk_path, r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\DJ-Academy-Learning.apk")
