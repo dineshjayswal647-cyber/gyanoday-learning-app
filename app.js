@@ -262,8 +262,7 @@ function setupGyanodayAuthHandlers() {
           statusDiv.textContent = data.error || 'लॉगिन विफल रहा।';
         }
       } catch (err) {
-        // Offline demo fallback login
-        console.warn("Server offline, using mock local credentials check.", err);
+        console.warn("Server offline, checking admin local credentials.", err);
         if (username === "9838691892" && password === "12345629") {
           const user = { name: "दिनेश जायसवाल (Admin)", phone: "9838691892", role: "admin", email: "dinesh@djacademy.com", photo: "admin_photo.jpg" };
           localStorage.setItem('dj_user', JSON.stringify(user));
@@ -274,19 +273,9 @@ function setupGyanodayAuthHandlers() {
             checkAuthentication();
             switchTab('admin');
           }, 800);
-        } else if (username.length >= 10 && password.length >= 4) {
-          const user = { name: "परीक्षण छात्र", phone: username, role: "student" };
-          localStorage.setItem('dj_user', JSON.stringify(user));
-          state.user = user;
-          statusDiv.className = 'auth-status success';
-          statusDiv.textContent = 'छात्र लॉगिन सफल (ऑफलाइन)';
-          setTimeout(() => {
-            checkAuthentication();
-            switchTab('dashboard');
-          }, 800);
         } else {
           statusDiv.className = 'auth-status error';
-          statusDiv.textContent = 'गलत मोबाइल/ईमेल या पासवर्ड!';
+          statusDiv.textContent = 'नेटवर्क त्रुटि! कृपया इंटरनेट चालू करें।';
         }
       }
     });
@@ -330,20 +319,8 @@ function setupGyanodayAuthHandlers() {
           statusDiv.textContent = data.error || 'रजिस्ट्रेशन विफल रहा।';
         }
       } catch (err) {
-        // Offline registration Complete fallback
-        console.warn("Server offline. Saving register details locally.", err);
-        const user = { name, phone, role: "student", email };
-        localStorage.setItem('dj_user', JSON.stringify(user));
-        state.user = user;
-        state.enrolledBatches = ['sankalp-batch'];
-        saveState();
-
-        statusDiv.className = 'auth-status success';
-        statusDiv.textContent = 'रजिस्ट्रेशन सफल (ऑफलाइन)!';
-        setTimeout(() => {
-          checkAuthentication();
-          switchTab('dashboard');
-        }, 1000);
+        statusDiv.className = 'auth-status error';
+        statusDiv.textContent = 'नेटवर्क त्रुटि! कृपया इंटरनेट चालू करें।';
       }
     });
   }
@@ -386,14 +363,8 @@ function setupGyanodayAuthHandlers() {
             statusDiv.textContent = data.error || 'OTP सेंड फेल।';
           }
         } catch (err) {
-          // Offline send OTP mock
-          statusDiv.className = 'auth-status success';
-          statusDiv.textContent = 'OTP कोड भेजा गया (ऑफलाइन)';
-          otpCodeGroup.style.display = 'block';
-          document.getElementById('btnGYOTPAction').textContent = "Verify OTP";
-          showMockOTPPill("1234");
-          document.getElementById('gyOTPCode').value = '';
-          document.getElementById('gyOTPCode').focus();
+          statusDiv.className = 'auth-status error';
+          statusDiv.textContent = 'नेटवर्क त्रुटि! कृपया इंटरनेट चालू करें।';
         }
       } 
       // STEP B: VERIFY OTP
@@ -420,7 +391,9 @@ function setupGyanodayAuthHandlers() {
               statusDiv.textContent = 'OTP सत्यापित! कृपया विवरण दर्ज करें।';
               setTimeout(() => {
                 switchToRegisterView();
-                document.getElementById('gyRegPhone').value = phone;
+                const regPhoneInput = document.getElementById('gyRegPhone');
+                regPhoneInput.value = phone;
+                regPhoneInput.readOnly = true;
                 document.getElementById('gyRegName').focus();
               }, 1000);
             } else {
@@ -443,19 +416,8 @@ function setupGyanodayAuthHandlers() {
             statusDiv.textContent = data.error || 'सत्यापन विफल।';
           }
         } catch (err) {
-          // Offline mock verification
-          if (otp === "1234") {
-            statusDiv.className = 'auth-status success';
-            statusDiv.textContent = 'OTP सत्यापित (ऑफलाइन)';
-            setTimeout(() => {
-              switchToRegisterView();
-              document.getElementById('gyRegPhone').value = phone;
-              document.getElementById('gyRegName').focus();
-            }, 1000);
-          } else {
-            statusDiv.className = 'auth-status error';
-            statusDiv.textContent = 'गलत OTP! (डेमो कोड: 1234)';
-          }
+          statusDiv.className = 'auth-status error';
+          statusDiv.textContent = 'नेटवर्क त्रुटि! कृपया इंटरनेट चालू करें।';
         }
       }
     });
@@ -2711,10 +2673,9 @@ window.openBookPDF = function(pdfPath, title) {
   reader.style.display = 'flex';
   readerTitle.textContent = title + " - NCERT Book";
 
-  // Use the local file path directly if we want offline assets, or server URL
-  // Since we package books in the assets under books/maths/..., the path is books/maths/11.pdf
-  // To keep it 100% offline, let's load it locally!
-  renderPDFOffline(pdfPath);
+  // Load the PDF from the online server (requires internet connection)
+  const onlinePdfUrl = pdfPath.startsWith('http') ? pdfPath : `${API_URL}/${pdfPath}`;
+  renderPDFOffline(onlinePdfUrl);
 };
 
 window.renderPDFOffline = function(pdfUrl) {
