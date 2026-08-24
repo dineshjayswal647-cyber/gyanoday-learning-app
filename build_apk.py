@@ -200,10 +200,21 @@ public class MainActivity extends AppCompatActivity {
                         conn.setRequestMethod(request.getMethod());
                         
                         for (Map.Entry<String, String> entry : request.getRequestHeaders().entrySet()) {
-                            conn.setRequestProperty(entry.getKey(), entry.getValue());
+                            String key = entry.getKey();
+                            if (!key.equalsIgnoreCase("Origin") && !key.equalsIgnoreCase("Referer")) {
+                                conn.setRequestProperty(key, entry.getValue());
+                            }
                         }
                         
-                        InputStream stream = conn.getInputStream();
+                        int responseCode = conn.getResponseCode();
+                        InputStream stream;
+                        if (responseCode >= 400) {
+                            android.util.Log.e("MainActivity", "Server returned HTTP error code: " + responseCode + " for URL: " + url);
+                            stream = conn.getErrorStream();
+                        } else {
+                            stream = conn.getInputStream();
+                        }
+                        
                         String mimeType = conn.getContentType();
                         if (mimeType != null && mimeType.contains(";")) {
                             mimeType = mimeType.split(";")[0];
@@ -221,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                         response.setResponseHeaders(headers);
                         return response;
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        android.util.Log.e("MainActivity", "Exception in proxying request for " + url, e);
                     }
                 }
                 return super.shouldInterceptRequest(view, request);
