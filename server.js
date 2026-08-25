@@ -702,9 +702,49 @@ app.post('/api/admin/upload', (req, res) => {
       title: title,
       content: finalContent
     });
+  } else if (type === 'dpp') {
+    let finalContent = content;
+
+    // Handle PDF base64 file upload if present
+    if (pdfData) {
+      try {
+        const uploadsDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        const fileName = `dpp-${Date.now()}.pdf`;
+        const filePath = path.join(uploadsDir, fileName);
+        
+        // Decode base64
+        const fileBuffer = Buffer.from(pdfData.split(',')[1], 'base64');
+        fs.writeFileSync(filePath, fileBuffer);
+        
+        // Store relative URL path
+        finalContent = `/uploads/${fileName}`;
+      } catch (err) {
+        console.error("DPP PDF write error:", err);
+        return res.status(500).json({ error: "DPP PDF फ़ाइल सहेजने में विफल!" });
+      }
+    }
+
+    if (!finalContent) return res.status(400).json({ error: "DPP की सामग्री (Content) या PDF फ़ाइल आवश्यक है।" });
+
+    if (!chapter.dpps) {
+      chapter.dpps = [];
+    }
+
+    chapter.dpps.push({
+      id: `dpp-${Date.now()}`,
+      title: title,
+      content: finalContent
+    });
   }
 
-  const notifyText = `दिनेश सर ने "${subjectId === 'science' ? 'विज्ञान' : 'गणित'}" के अंतर्गत "${chapterTitle}" में नया ${type === 'lecture' ? 'वीडियो लेक्चर' : 'नोट्स PDF'} अपलोड किया! 📚`;
+  let uploadLabel = 'वीडियो लेक्चर';
+  if (type === 'note') uploadLabel = 'नोट्स PDF';
+  if (type === 'dpp') uploadLabel = 'डेली प्रैक्टिस पेपर (DPP)';
+  
+  const notifyText = `दिनेश सर ने "${subjectId === 'science' ? 'विज्ञान' : 'गणित'}" के अंतर्गत "${chapterTitle}" में नया ${uploadLabel} अपलोड किया! 📚`;
   db.notifications.unshift({
     id: Date.now(),
     type: "upload",
@@ -742,6 +782,10 @@ app.post('/api/admin/delete-item', (req, res) => {
         chapter = c;
         break;
       }
+      if (type === 'dpp' && c.dpps && c.dpps.some(d => d.id === itemId)) {
+        chapter = c;
+        break;
+      }
     }
 
     if (chapter) {
@@ -762,6 +806,22 @@ app.post('/api/admin/delete-item', (req, res) => {
           }
         }
         chapter.notes = chapter.notes.filter(n => n.id !== itemId);
+      } else if (type === 'dpp') {
+        if (chapter.dpps) {
+          const dpp = chapter.dpps.find(d => d.id === itemId);
+          if (dpp && dpp.content && dpp.content.startsWith('/uploads/')) {
+            try {
+              const filePath = path.join(__dirname, dpp.content);
+              if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                console.log("Deleted physical file:", filePath);
+              }
+            } catch (err) {
+              console.error("Failed to delete physical file:", err);
+            }
+          }
+          chapter.dpps = chapter.dpps.filter(d => d.id !== itemId);
+        }
       }
       writeDB(db);
       return res.status(200).json({ message: "सामग्री सफलतापूर्वक हटा दी गई है!", customChapters: db.customChapters });

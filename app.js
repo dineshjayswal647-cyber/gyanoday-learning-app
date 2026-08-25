@@ -554,6 +554,14 @@ async function syncCustomContent() {
                 existingCh.notes.push(n);
               }
             });
+            if (customCh.dpps) {
+              if (!existingCh.dpps) existingCh.dpps = [];
+              customCh.dpps.forEach(d => {
+                if (!existingCh.dpps.find(ed => ed.title === d.title)) {
+                  existingCh.dpps.push(d);
+                }
+              });
+            }
           } else {
             mockData.subjects[subId].chapters.push(customCh);
           }
@@ -895,19 +903,20 @@ function renderChapterContent(chapter) {
   let materialsHTML = `<div class="material-list">`;
   
   if (chapter.notes && chapter.notes.length > 0) {
-    const note = chapter.notes[0];
-    materialsHTML += `
-      <div class="material-card" onclick="openNotesPDF('${activeSubjectId}', '${chapter.id}', '${note.id}')">
-        <div class="mc-left note-type">
-          <i class="fa-solid fa-file-pdf"></i>
-          <div class="mc-meta">
-            <h5>हस्तलिखित नोट्स PDF</h5>
-            <p>पढ़ें और डाउनलोड करें</p>
+    chapter.notes.forEach(note => {
+      materialsHTML += `
+        <div class="material-card" onclick="openNotesPDF('${activeSubjectId}', '${chapter.id}', '${note.id}', 'batches')">
+          <div class="mc-left note-type">
+            <i class="fa-solid fa-file-pdf"></i>
+            <div class="mc-meta">
+              <h5>हस्तलिखित नोट्स: ${note.title}</h5>
+              <p>पढ़ें और डाउनलोड करें</p>
+            </div>
           </div>
+          <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
         </div>
-        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
-      </div>
-    `;
+      `;
+    });
   } else {
     materialsHTML += `
       <div class="material-card" style="opacity: 0.6; cursor: not-allowed;">
@@ -920,6 +929,23 @@ function renderChapterContent(chapter) {
         </div>
       </div>
     `;
+  }
+
+  if (chapter.dpps && chapter.dpps.length > 0) {
+    chapter.dpps.forEach(dpp => {
+      materialsHTML += `
+        <div class="material-card" onclick="openDppPDF('${activeSubjectId}', '${chapter.id}', '${dpp.id}')">
+          <div class="mc-left dpp-type">
+            <i class="fa-solid fa-file-signature" style="color: var(--accent-saffron);"></i>
+            <div class="mc-meta">
+              <h5>DPP: ${dpp.title}</h5>
+              <p>डेली प्रैक्टिस पेपर (DPP)</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+        </div>
+      `;
+    });
   }
 
   if (chapter.quiz) {
@@ -1139,6 +1165,17 @@ function setupChatForm() {
 // NOTES & PDF READER
 // ==========================================================================
 function initNotesExplorer() {
+  if (state.pendingPDFToOpen) {
+    const pending = state.pendingPDFToOpen;
+    state.pendingPDFToOpen = null;
+    if (pending.type === 'dpp') {
+      openDppPDF(pending.subId, pending.chId, pending.dppId, 'batches');
+    } else {
+      openNotesPDF(pending.subId, pending.chId, pending.noteId, 'batches');
+    }
+    return;
+  }
+
   document.getElementById('notesListSection').style.display = 'block';
   document.getElementById('pdfReaderSection').style.display = 'none';
 
@@ -1179,12 +1216,18 @@ function initNotesExplorer() {
 
 let pdfReaderBackTab = 'notes';
 
-function openNotesPDF(subId, chId, noteId) {
+function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
+  if (fromTab === 'batches') {
+    state.pendingPDFToOpen = { subId, chId, noteId, type: 'note' };
+    switchTab('notes');
+    return;
+  }
+
   const subject = mockData.subjects[subId];
   const chapter = subject.chapters.find(c => c.id === chId);
   const note = chapter.notes.find(n => n.id === noteId);
 
-  pdfReaderBackTab = 'notes';
+  pdfReaderBackTab = fromTab;
   document.getElementById('notesListSection').style.display = 'none';
   const reader = document.getElementById('pdfReaderSection');
   reader.style.display = 'flex';
@@ -1205,11 +1248,48 @@ function openNotesPDF(subId, chId, noteId) {
   }
 }
 
+window.openNotesPDF = openNotesPDF;
+
+window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
+  if (fromTab === 'batches') {
+    state.pendingPDFToOpen = { subId, chId, dppId, type: 'dpp' };
+    switchTab('notes');
+    return;
+  }
+
+  const subject = mockData.subjects[subId];
+  const chapter = subject.chapters.find(c => c.id === chId);
+  const dpp = chapter.dpps ? chapter.dpps.find(d => d.id === dppId) : null;
+  if (!dpp) return;
+
+  pdfReaderBackTab = fromTab;
+  document.getElementById('notesListSection').style.display = 'none';
+  const reader = document.getElementById('pdfReaderSection');
+  reader.style.display = 'flex';
+  document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${dpp.title})`;
+
+  if (!state.completedLectures) state.completedLectures = [];
+  const itemId = `${subId}_${dppId}`;
+  if (!state.completedLectures.includes(itemId)) {
+    state.completedLectures.push(itemId);
+    saveState();
+  }
+
+  if (dpp.content.startsWith('/uploads/')) {
+    const fullPdfUrl = `${API_URL}${dpp.content}`;
+    renderPDFOffline(fullPdfUrl);
+  } else {
+    document.getElementById('pdfContentBody').innerHTML = dpp.content;
+  }
+};
+
 function closePDFReader() {
   document.getElementById('pdfReaderSection').style.display = 'none';
   if (pdfReaderBackTab === 'books') {
     const viewBooks = document.getElementById('view-books');
     if (viewBooks) viewBooks.style.display = 'block';
+  } else if (pdfReaderBackTab === 'batches') {
+    switchTab('batches');
   } else {
     document.getElementById('notesListSection').style.display = 'block';
   }
@@ -1740,7 +1820,8 @@ function initAdminPanel() {
         }
         bodyData.content = document.getElementById('adminNotesContent').value.trim();
         if (!bodyData.pdfData && !bodyData.content) {
-          return alert("कृपया नोट्स का टेक्स्ट लिखें या फिर कोई PDF फ़ाइल चुनें!");
+          const itemLabel = contentType === 'dpp' ? 'DPP' : 'नोट्स';
+          return alert(`कृपया ${itemLabel} का टेक्स्ट लिखें या फिर कोई PDF फ़ाइल चुनें!`);
         }
       }
 
@@ -1997,7 +2078,7 @@ function readPdfFileAsBase64(file) {
 function toggleAdminContentFields() {
   const type = document.getElementById('adminContentType').value;
   document.getElementById('adminVideoFields').style.display = type === 'lecture' ? 'block' : 'none';
-  document.getElementById('adminNotesFields').style.display = type === 'note' ? 'block' : 'none';
+  document.getElementById('adminNotesFields').style.display = (type === 'note' || type === 'dpp') ? 'block' : 'none';
 }
 
 async function loadAdminNotifications() {
@@ -2484,6 +2565,23 @@ window.loadAdminContentManager = async function() {
             `;
           }
         });
+
+        if (ch.dpps) {
+          ch.dpps.forEach(dpp => {
+            if (dpp.id.startsWith('dpp-') || dpp.id.startsWith('custom-')) {
+              hasItems = true;
+              itemsHtml += `
+                <div class="admin-log-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); margin-bottom: 8px;">
+                  <div>
+                    <span style="font-size: 11px; color: var(--accent-saffron); font-weight: bold;">📝 DPP | ${subjectNames[subId] || subId}</span>
+                    <h4 style="font-size: 13px; margin: 4px 0; color: var(--text-primary);">${ch.title} - ${dpp.title}</h4>
+                  </div>
+                  <button onclick="deleteAdminItem('${subId}', '${ch.id}', 'dpp', '${dpp.id}')" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash-can"></i> हटाएं</button>
+                </div>
+              `;
+            }
+          });
+        }
       });
     }
   });
