@@ -145,6 +145,10 @@ function checkAuthentication() {
           if (updatedUser) {
             state.user = { ...state.user, ...updatedUser };
             localStorage.setItem('dj_user', JSON.stringify(state.user));
+            if (updatedUser.enrolledBatches) {
+              state.enrolledBatches = updatedUser.enrolledBatches;
+              saveState();
+            }
             configureLayoutForRole();
           }
         })
@@ -248,6 +252,8 @@ function setupGyanodayAuthHandlers() {
           
           localStorage.setItem('dj_user', JSON.stringify(data.user));
           state.user = data.user;
+          state.enrolledBatches = data.user.enrolledBatches || [];
+          saveState();
 
           setTimeout(() => {
             checkAuthentication();
@@ -264,9 +270,10 @@ function setupGyanodayAuthHandlers() {
       } catch (err) {
         console.warn("Server offline, checking admin local credentials.", err);
         if (username === "9838691892" && password === "12345629") {
-          const user = { name: "दिनेश जायसवाल (Admin)", phone: "9838691892", role: "admin", email: "dinesh@djacademy.com", photo: "admin_photo.jpg" };
+          const user = { name: "दिनेश जायसवाल (Admin)", phone: "9838691892", role: "admin", email: "dinesh@djacademy.com", photo: "admin_photo.jpg", enrolledBatches: ["sankalp-batch"] };
           localStorage.setItem('dj_user', JSON.stringify(user));
           state.user = user;
+          state.enrolledBatches = ["sankalp-batch"];
           statusDiv.className = 'auth-status success';
           statusDiv.textContent = 'एडमिन लॉगिन सफल (ऑफलाइन)';
           setTimeout(() => {
@@ -307,7 +314,7 @@ function setupGyanodayAuthHandlers() {
           
           localStorage.setItem('dj_user', JSON.stringify(data.user));
           state.user = data.user;
-          state.enrolledBatches = ['sankalp-batch'];
+          state.enrolledBatches = data.user.enrolledBatches || [];
           saveState();
 
           setTimeout(() => {
@@ -402,6 +409,8 @@ function setupGyanodayAuthHandlers() {
               statusDiv.textContent = 'लॉगिन सफल!';
               localStorage.setItem('dj_user', JSON.stringify(data.user));
               state.user = data.user;
+              state.enrolledBatches = data.user.enrolledBatches || [];
+              saveState();
               setTimeout(() => {
                 checkAuthentication();
                 if (state.user.role === 'admin') {
@@ -798,7 +807,7 @@ function initBatches() {
           <div class="bsc-features">
             <div class="feature-pill"><i class="fa-solid fa-circle-check"></i> <span>सभी विषयों के लाइव एवं रिकॉर्डेड लेक्चर्स</span></div>
             <div class="feature-pill"><i class="fa-solid fa-circle-check"></i> <span>दिनेश सर द्वारा तैयार हस्तलिखित PDFs नोट्स</span></div>
-            <div class="feature-pill"><i class="fa-solid fa-circle-check"></i> <span>साप्ताहिक मॉक टेस्ट एवं डाउट क्लासेज</span></div>
+            <div class="feature-pill"><i class="fa-solid fa-circle-check"></i> <span>साप-ताहिक मॉक टेस्ट एवं DPP अभ्यास</span></div>
             <div class="feature-pill"><i class="fa-solid fa-circle-check"></i> <span>विशेष यूपी बोर्ड कक्षा 10 हिन्दी माध्यम पैटर्न</span></div>
           </div>
           
@@ -807,13 +816,53 @@ function initBatches() {
               ${batch.price ? `<span class="price-old">${batch.price}</span>` : ''}
               <span class="price-new" style="color: var(--accent-saffron); font-weight: 800; font-size: 20px;">${batch.discountPrice}</span>
             </div>
-            <button class="btn btn-primary" onclick="enrollInBatch('${batch.id}')">मुफ़्त एनरोल करें</button>
+            <button class="btn btn-primary" onclick="showPaymentDetails()">🔴 बैच खरीदें (Buy Now)</button>
           </div>
         </div>
       </div>
     `;
   }
 }
+
+window.showPaymentDetails = function() {
+  const batchListSection = document.getElementById('batchListSection');
+  if (!batchListSection) return;
+  
+  const batch = mockData.batches[0];
+  batchListSection.innerHTML = `
+    <div class="batch-showcase-card" style="padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;">
+      <button class="back-btn" onclick="initBatches()" style="align-self: flex-start; margin-bottom: 20px; background: none; border: none; color: var(--accent-saffron); font-weight: bold; cursor: pointer; font-size: 14px;">
+        <i class="fa-solid fa-arrow-left"></i> वापस जाएं
+      </button>
+      
+      <h3 style="color: var(--accent-saffron); font-size: 18px; margin-bottom: 8px; font-weight: 800;">💳 संकल्प बैच 2027 एक्टिवेशन प्रक्रिया</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;">बैच की लाइव क्लासेज, रिकॉर्डेड वीडियोस, नोट्स और DPP का पूरा एक्सेस पाने के लिए कृपया भुगतान पूरा करें।</p>
+      
+      <!-- QR code or UPI Info -->
+      <div style="background: var(--bg-body); padding: 18px 24px; border-radius: 12px; display: inline-block; border: 1px solid var(--border-color); margin-bottom: 20px; width: 100%;">
+        <div style="font-size: 24px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; letter-spacing: 0.5px;">UPI ID: 9838691892@ybl</div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 6px 0;">या PhonePe / Google Pay नंबर:</p>
+        <span style="font-size: 18px; font-weight: bold; color: var(--accent-saffron);">9838691892</span>
+        <div style="font-size: 14px; font-weight: bold; color: var(--text-primary); margin-top: 10px;">फीस: ${batch.discountPrice}</div>
+      </div>
+
+      <div style="background: rgba(255, 111, 0, 0.04); border: 1px dashed var(--accent-saffron); padding: 14px; border-radius: 10px; font-size: 12px; line-height: 1.6; color: var(--text-primary); margin-bottom: 24px; text-align: left; width: 100%;">
+        📢 <b>महत्वपूर्ण निर्देश:</b> भुगतान करने के बाद, पेमेंट की रसीद या स्क्रीनशॉट नीचे दिए गए <b>"व्हाट्सएप पर स्क्रीनशॉट भेजें"</b> बटन पर क्लिक करके हमें भेजें। हम 5 मिनट के भीतर आपका बैच एक्टिवेट कर देंगे।
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="sendPaymentScreenshot()" style="background-color: #25d366; border-color: #25d366; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: bold; padding: 12px;">
+        <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> व्हाट्सएप पर स्क्रीनशॉट भेजें
+      </button>
+    </div>
+  `;
+};
+
+window.sendPaymentScreenshot = function() {
+  const userName = state.user ? state.user.name : '';
+  const userPhone = state.user ? state.user.phone : '';
+  const text = encodeURIComponent(`नमस्ते दिनेश सर, मैंने संकल्प बैच 2027 के लिए पेमेंट कर दिया है।\n\n👤 नाम: ${userName}\n📱 मोबाइल: ${userPhone}\n\nकृपया मेरा संकल्प बैच एक्टिवेट करें।`);
+  window.open(`https://api.whatsapp.com/send?phone=919838691892&text=${text}`);
+};
 
 function enrollInBatch(batchId) {
   if (!state.enrolledBatches.includes(batchId)) {
@@ -2119,14 +2168,22 @@ async function loadAdminStudents() {
         return;
       }
       students.forEach(stud => {
+        const isEnrolled = stud.enrolledBatches && stud.enrolledBatches.includes('sankalp-batch');
+        const statusBtnText = isEnrolled ? "❌ डीएक्टिवेट" : "✅ एक्टिव करें";
+        const statusClass = isEnrolled ? "active" : "inactive";
+        const statusLabel = isEnrolled ? "बैच एक्टिव" : "नॉट एक्टिव";
+
         const div = document.createElement('div');
         div.className = 'admin-student-row';
+        div.style = 'display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color);';
         div.innerHTML = `
           <div class="stud-name-meta">
-            <h5>${stud.name}</h5>
-            <p>फोन: ${stud.phone}</p>
+            <h5 style="margin: 0 0 4px 0; font-size: 13.5px; color: var(--text-primary);">${stud.name}</h5>
+            <p style="margin: 0; font-size: 11.5px; color: var(--text-secondary);">फोन: ${stud.phone} | <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; background: ${isEnrolled ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${isEnrolled ? '#22c55e' : '#ef4444'};">${statusLabel}</span></p>
           </div>
-          <span class="stud-date">${stud.enrolledDate || 'आज'}</span>
+          <button onclick="toggleStudentBatch('${stud.phone}', ${isEnrolled})" style="background: ${isEnrolled ? '#ef4444' : '#22c55e'}; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
+            ${statusBtnText}
+          </button>
         `;
         container.appendChild(div);
       });
@@ -2135,6 +2192,29 @@ async function loadAdminStudents() {
     container.innerHTML = `<p style="font-size:12px; color: var(--text-muted);">छात्र सूची लोड करने में विफल (सर्वर ऑफलाइन)।</p>`;
   }
 }
+
+window.toggleStudentBatch = async function(phone, isCurrentlyEnrolled) {
+  const action = isCurrentlyEnrolled ? 'deactivate' : 'activate';
+  if (!confirm(`क्या आप सचमुच इस छात्र के लिए संकल्प बैच को ${isCurrentlyEnrolled ? 'डीएक्टिवेट' : 'एक्टिवेट'} करना चाहते हैं?`)) return;
+
+  try {
+    const response = await fetch(`${API_URL}/api/admin/student/toggle-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, action, batchId: 'sankalp-batch' })
+    });
+
+    if (response.ok) {
+      alert("छात्र का बैच स्टेटस अपडेट हो गया है!");
+      loadAdminStudents();
+    } else {
+      const data = await response.json();
+      alert("अपडेट करने में विफल: " + data.error);
+    }
+  } catch (err) {
+    alert("सर्वर ऑफलाइन है!");
+  }
+};
 
 async function loadAdminSettings() {
   try {
@@ -2500,10 +2580,11 @@ window.openDirectSubject = function(subjectId) {
     return;
   }
 
-  // Auto enroll in free sankalp-batch if not already enrolled
+  // Enrollment check
   if (!state.enrolledBatches.includes('sankalp-batch')) {
-    state.enrolledBatches.push('sankalp-batch');
-    saveState();
+    switchTab('batches');
+    alert("इस विषय को पढ़ने के लिए कृपया संकल्प बैच 2027 खरीदें!");
+    return;
   }
 
   // Set selected subject active

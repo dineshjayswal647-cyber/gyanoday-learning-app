@@ -190,7 +190,7 @@ app.post('/api/auth/login', (req, res) => {
 
   res.status(200).json({
     message: "लॉगिन सफल!",
-    user: { name: user.name, phone: user.phone, role: user.role, email: user.email, photo: user.photo || "" }
+    user: { name: user.name, phone: user.phone, role: user.role, email: user.email, photo: user.photo || "", enrolledBatches: user.enrolledBatches || [] }
   });
 });
 
@@ -216,6 +216,7 @@ app.post('/api/auth/register', (req, res) => {
     password,
     role: "student",
     photo: "",
+    enrolledBatches: [],
     enrolledDate: new Date().toLocaleDateString('hi-IN')
   };
 
@@ -238,7 +239,7 @@ app.post('/api/auth/register', (req, res) => {
 
   res.status(201).json({
     message: "रजिस्ट्रेशन सफल!",
-    user: { name: newUser.name, phone: newUser.phone, role: newUser.role, email: newUser.email, photo: newUser.photo }
+    user: { name: newUser.name, phone: newUser.phone, role: newUser.role, email: newUser.email, photo: newUser.photo, enrolledBatches: newUser.enrolledBatches }
   });
 });
 
@@ -274,7 +275,8 @@ app.get('/api/user/profile', (req, res) => {
       phone: user.phone,
       role: user.role,
       email: user.email || "",
-      photo: user.photo || ""
+      photo: user.photo || "",
+      enrolledBatches: user.enrolledBatches || []
     });
   }
   res.status(404).json({ error: "यूज़र नहीं मिला।" });
@@ -401,7 +403,7 @@ app.post('/api/auth/verify-otp', (req, res) => {
 
     res.status(200).json({
       message: "लॉगिन सफल!",
-      user: { name: user.name, phone: user.phone, role: user.role, email: user.email },
+      user: { name: user.name, phone: user.phone, role: user.role, email: user.email, enrolledBatches: user.enrolledBatches || [] },
       isNewUser: false
     });
   } else {
@@ -872,6 +874,34 @@ app.get('/api/admin/students', (req, res) => {
   const db = readDB();
   const students = db.users.filter(u => u.role === 'student');
   res.status(200).json(students);
+});
+
+app.post('/api/admin/student/toggle-batch', (req, res) => {
+  const { phone, action, batchId } = req.body;
+  if (!phone || !action || !batchId) {
+    return res.status(400).json({ error: "सभी पैरामीटर आवश्यक हैं।" });
+  }
+
+  const db = readDB();
+  const user = db.users.find(u => u.phone === phone);
+  if (!user) {
+    return res.status(404).json({ error: "यूजर नहीं मिला।" });
+  }
+
+  if (!user.enrolledBatches) {
+    user.enrolledBatches = [];
+  }
+
+  if (action === 'activate') {
+    if (!user.enrolledBatches.includes(batchId)) {
+      user.enrolledBatches.push(batchId);
+    }
+  } else if (action === 'deactivate') {
+    user.enrolledBatches = user.enrolledBatches.filter(id => id !== batchId);
+  }
+
+  writeDB(db);
+  res.status(200).json({ message: "सफलतापूर्वक अपडेट किया गया!", user });
 });
 
 // Get Public Notifications for Students
