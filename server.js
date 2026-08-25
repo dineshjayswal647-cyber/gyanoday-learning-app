@@ -48,7 +48,7 @@ function initDB() {
         {
           id: 1,
           type: "system",
-          text: "DJ Academy सर्वर सफलतापूर्वक चालू हो गया है!",
+          text: "JK Learning सर्वर सफलतापूर्वक चालू हो गया है!",
           date: new Date().toLocaleString('hi-IN')
         }
       ],
@@ -104,7 +104,7 @@ function sendWebhookNotification(payload) {
     postData = JSON.stringify(payload);
   } else {
     postData = JSON.stringify({
-      content: `🔔 **DJ Academy Alert:** ${payload}`
+      content: `🔔 **JK Learning Alert:** ${payload}`
     });
   }
 
@@ -324,7 +324,7 @@ app.post('/api/auth/send-otp', (req, res) => {
       url = `https://www.fast2sms.com/dev/bulkV2?sender_id=${encodeURIComponent(senderId)}&message=${encodeURIComponent(templateId)}&variables_values=${otp}&route=dlt&numbers=${phone}`;
     } else {
       // Standard Quick SMS route fallback with custom message
-      url = `https://www.fast2sms.com/dev/bulkV2?route=q&message=${encodeURIComponent("DJ Academy Learning App verification code is " + otp)}&numbers=${phone}`;
+      url = `https://www.fast2sms.com/dev/bulkV2?route=q&message=${encodeURIComponent("JK Learning App verification code is " + otp)}&numbers=${phone}`;
     }
 
     const options = {
@@ -645,6 +645,7 @@ app.post('/api/admin/upload', (req, res) => {
       title: chapterTitle,
       lectures: [],
       notes: [],
+      dpps: [],
       quiz: null
     };
     db.customChapters[subjectId].push(chapter);
@@ -656,6 +657,7 @@ app.post('/api/admin/upload', (req, res) => {
         title: chapterTitle,
         lectures: [],
         notes: [],
+        dpps: [],
         quiz: null
       };
       db.customChapters[subjectId].push(chapter);
@@ -940,7 +942,7 @@ const localIP = getLocalIPAddress();
 // Bind to 0.0.0.0 to enable mobile connections on local network
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`===========================================================`);
-  console.log(`DJ Academy Full-Stack server is active!`);
+  console.log(`JK Learning Full-Stack server is active!`);
   console.log(`Local Access: http://localhost:${PORT}`);
   console.log(`Mobile Access: http://${localIP}:${PORT}`);
   console.log(`===========================================================`);

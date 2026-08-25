@@ -108,7 +108,7 @@ dependencies {
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:roundIcon="@drawable/logo"
-        android:label="DJ Academy Learning"
+        android:label="JK Learning"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="true">
         <activity
@@ -343,15 +343,16 @@ def build_and_install():
         apk_path = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk", "release", "app-release.apk")
         if os.path.exists(apk_path):
             # Copy to the root workspace for easy access
+            shutil.copy(apk_path, r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\JK-Learning.apk")
             shutil.copy(apk_path, r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\DJ-Academy-Learning.apk")
-            print("Successfully copied compiled APK to workspace root as DJ-Academy-Learning.apk!")
+            print("Successfully copied compiled APK to workspace root as JK-Learning.apk!")
             print("Installing APK directly to mobile via ADB...")
             install_proc = subprocess.run([ADB_PATH, "install", "-r", apk_path], shell=True)
             if install_proc.returncode == 0:
                 print("App successfully installed on your mobile phone!")
                 
                 # Launch the app on phone
-                print("Launching DJ Academy App on your mobile phone...")
+                print("Launching JK Learning App on your mobile phone...")
                 subprocess.run([ADB_PATH, "shell", "monkey", "-p", "com.djacademy.app", "-c", "android.intent.category.LAUNCHER", "1"], shell=True)
             else:
                 print("Installation failed. Make sure USB Debugging is authorized on your phone.")

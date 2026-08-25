@@ -119,6 +119,11 @@ function saveState() {
   updateProfileStats();
 }
 
+function isUserEnrolledInBatch(batchId) {
+  if (state.user && state.user.role === 'admin') return true;
+  return state.enrolledBatches && state.enrolledBatches.includes(batchId);
+}
+
 // ==========================================================================
 // GYANODAY-STYLE AUTHENTICATION HANDLERS
 // ==========================================================================
@@ -456,7 +461,7 @@ function showMockOTPPill(otp) {
   pill.style.color = '#ffffff';
   
   pill.innerHTML = `
-    <span style="font-size:12px; color:#a1a1aa; display:block;">📲 MOCK SMS: DJ ACADEMY OTP</span>
+    <span style="font-size:12px; color:#a1a1aa; display:block;">📲 MOCK SMS: JK LEARNING OTP</span>
     <strong style="font-size:20px; color:#ff6f00; font-family:var(--font-display); letter-spacing:1px;">${otp}</strong>
     <span style="font-size:10px; color:#71717a; display:block; margin-top:2px;">(सत्यापन के लिए इसे डालें)</span>
   `;
@@ -797,7 +802,7 @@ function initBatches() {
     batchListSection.innerHTML = `
       <div class="batch-showcase-card">
         <div class="bsc-header-img">
-          <img src="logo.jpg" alt="DJ Logo">
+          <img src="logo.jpg" alt="JK Logo">
         </div>
         <div class="bsc-body">
           <h2>${batch.title}</h2>
@@ -1082,7 +1087,7 @@ async function initLiveClassroom() {
 
         videoPlayer.innerHTML = `
           <iframe src="https://www.youtube.com/embed/${liveClass.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1" 
-                  title="DJ Academy Live Class" 
+                  title="JK Learning Live Class" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                   allowfullscreen>
           </iframe>
@@ -2309,7 +2314,7 @@ async function fetchNotifications() {
     console.warn("Unable to fetch notifications. Offline mode active.", err);
     // Offline placeholder notifications
     state.notifications = [
-      { id: 101, type: 'system', text: 'DJ Academy ऑफलाइन डेमो मोड में चालू है।', date: 'आज' },
+      { id: 101, type: 'system', text: 'JK Learning ऑफलाइन डेमो मोड में चालू है।', date: 'आज' },
       { id: 102, type: 'upload', text: 'दिनेश सर ने विज्ञान में नया नोट्स PDF अपलोड किया!', date: 'कल' }
     ];
     renderNotificationsList();
