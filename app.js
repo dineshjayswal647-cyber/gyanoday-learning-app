@@ -1266,8 +1266,9 @@ function initNotesExplorer() {
 let pdfReaderBackTab = 'notes';
 
 function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
-  if (fromTab === 'batches') {
+  if (window.location.hash !== '#notes') {
     state.pendingPDFToOpen = { subId, chId, noteId, type: 'note' };
+    pdfReaderBackTab = fromTab;
     switchTab('notes');
     return;
   }
@@ -1300,8 +1301,9 @@ function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
 window.openNotesPDF = openNotesPDF;
 
 window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
-  if (fromTab === 'batches') {
+  if (window.location.hash !== '#notes') {
     state.pendingPDFToOpen = { subId, chId, dppId, type: 'dpp' };
+    pdfReaderBackTab = fromTab;
     switchTab('notes');
     return;
   }
