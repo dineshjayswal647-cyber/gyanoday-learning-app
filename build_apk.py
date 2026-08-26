@@ -80,8 +80,8 @@ android {
         applicationId "com.djacademy.app"
         minSdk 21
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "2.0"
     }
 
     buildTypes {
@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setSupportZoom(false);
         webSettings.setBuiltInZoomControls(false);
         webSettings.setDisplayZoomControls(false);
+        webView.clearCache(true);
 
         webView.setWebChromeClient(new WebChromeClient() {
             private View customView;
@@ -347,7 +348,12 @@ def build_and_install():
             shutil.copy(apk_path, r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\DJ-Academy-Learning.apk")
             print("Successfully copied compiled APK to workspace root as JK-Learning.apk!")
             print("Installing APK directly to mobile via ADB...")
-            install_proc = subprocess.run([ADB_PATH, "install", "-r", apk_path], shell=True)
+            install_proc = subprocess.run([ADB_PATH, "install", "-r", "-d", apk_path], shell=True)
+            if install_proc.returncode != 0:
+                print("Direct install failed, attempting clean reinstall...")
+                subprocess.run([ADB_PATH, "uninstall", "com.djacademy.app"], shell=True)
+                install_proc = subprocess.run([ADB_PATH, "install", apk_path], shell=True)
+
             if install_proc.returncode == 0:
                 print("App successfully installed on your mobile phone!")
                 
