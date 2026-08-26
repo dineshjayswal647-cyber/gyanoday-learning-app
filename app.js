@@ -931,8 +931,18 @@ function renderClassroom() {
 
 function renderChapterContent(chapter) {
   const container = document.getElementById('chapterDetailsCard');
-  
-  let lecturesHTML = `<span class="classroom-section-label">📽️ वीडियो लेक्चर्स (Lectures)</span>`;
+  if (!container) return;
+
+  if (!state.currentChapterTab) state.currentChapterTab = 'all';
+
+  const lectureCount = chapter.lectures ? chapter.lectures.length : 0;
+  const notesCount = chapter.notes ? chapter.notes.length : 0;
+  const dppCount = chapter.dpps ? chapter.dpps.length : 0;
+  const hasQuiz = !!chapter.quiz;
+
+  // 1. Lectures list
+  let lecturesHTML = `<div class="pw-section-block" id="pw-sec-lectures">`;
+  lecturesHTML += `<span class="classroom-section-label"><i class="fa-solid fa-play"></i> 📽️ वीडियो लेक्चर्स (Lectures - ${lectureCount})</span>`;
   if (chapter.lectures && chapter.lectures.length > 0) {
     chapter.lectures.forEach(lec => {
       lecturesHTML += `
@@ -951,14 +961,17 @@ function renderChapterContent(chapter) {
       `;
     });
   } else {
-    lecturesHTML += `<p style="font-size:13px; color:var(--text-secondary); margin-bottom: 20px;">इस अध्याय के लेक्चर्स जल्द ही लाइव होंगे।</p>`;
+    lecturesHTML += `<p style="font-size:13px; color:var(--text-secondary); margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">इस अध्याय के रिकॉर्डेड लेक्चर्स जल्द ही लाइव/अपलोड होंगे।</p>`;
   }
+  lecturesHTML += `</div>`;
 
-  let materialsHTML = `<div class="material-list">`;
-  
+  // 2. Class Notes PDF list
+  let notesHTML = `<div class="pw-section-block" id="pw-sec-notes">`;
+  notesHTML += `<span class="classroom-section-label"><i class="fa-solid fa-file-pdf"></i> 📝 क्लास नोट्स (Class Notes PDF - ${notesCount})</span>`;
+  notesHTML += `<div class="material-list">`;
   if (chapter.notes && chapter.notes.length > 0) {
     chapter.notes.forEach(note => {
-      materialsHTML += `
+      notesHTML += `
         <div class="material-card" onclick="openNotesPDF('${activeSubjectId}', '${chapter.id}', '${note.id}', 'batches')">
           <div class="mc-left note-type">
             <i class="fa-solid fa-file-pdf"></i>
@@ -972,7 +985,7 @@ function renderChapterContent(chapter) {
       `;
     });
   } else {
-    materialsHTML += `
+    notesHTML += `
       <div class="material-card" style="opacity: 0.6; cursor: not-allowed;">
         <div class="mc-left note-type">
           <i class="fa-solid fa-file-pdf"></i>
@@ -984,26 +997,48 @@ function renderChapterContent(chapter) {
       </div>
     `;
   }
+  notesHTML += `</div></div>`;
 
+  // 3. DPP list
+  let dppHTML = `<div class="pw-section-block" id="pw-sec-dpp">`;
+  dppHTML += `<span class="classroom-section-label"><i class="fa-solid fa-file-signature"></i> 📋 डेली प्रैक्टिस पेपर (DPP - ${dppCount})</span>`;
+  dppHTML += `<div class="material-list">`;
   if (chapter.dpps && chapter.dpps.length > 0) {
     chapter.dpps.forEach(dpp => {
-      materialsHTML += `
+      dppHTML += `
         <div class="material-card" onclick="openDppPDF('${activeSubjectId}', '${chapter.id}', '${dpp.id}')">
           <div class="mc-left dpp-type">
             <i class="fa-solid fa-file-signature" style="color: var(--accent-saffron);"></i>
             <div class="mc-meta">
               <h5>DPP: ${dpp.title}</h5>
-              <p>डेली प्रैक्टिस पेपर (DPP)</p>
+              <p>डेली प्रैक्टिस पेपर (हल सहित)</p>
             </div>
           </div>
           <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
         </div>
       `;
     });
+  } else {
+    dppHTML += `
+      <div class="material-card" style="opacity: 0.6; cursor: not-allowed;">
+        <div class="mc-left dpp-type">
+          <i class="fa-solid fa-file-signature" style="color: var(--accent-saffron);"></i>
+          <div class="mc-meta">
+            <h5>DPP जल्द अपलोड होगा</h5>
+            <p>डेली प्रैक्टिस शीट</p>
+          </div>
+        </div>
+      </div>
+    `;
   }
+  dppHTML += `</div></div>`;
 
+  // 4. Test & Doubt
+  let testDoubtHTML = `<div class="pw-section-block" id="pw-sec-tests">`;
+  testDoubtHTML += `<span class="classroom-section-label"><i class="fa-solid fa-pen-to-square"></i> 🧪 ऑनलाइन टेस्ट & डाउट</span>`;
+  testDoubtHTML += `<div class="material-list">`;
   if (chapter.quiz) {
-    materialsHTML += `
+    testDoubtHTML += `
       <div class="material-card" onclick="startDirectQuiz('${activeSubjectId}', '${chapter.id}')">
         <div class="mc-left quiz-type">
           <i class="fa-solid fa-pen-to-square"></i>
@@ -1015,29 +1050,111 @@ function renderChapterContent(chapter) {
         <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
       </div>
     `;
-  } else {
-    materialsHTML += `
-      <div class="material-card" style="opacity: 0.6; cursor: not-allowed;">
-        <div class="mc-left quiz-type">
-          <i class="fa-solid fa-pen-to-square"></i>
-          <div class="mc-meta">
-            <h5>क्विज़ जल्द उपलब्ध होगा</h5>
-            <p>मॉक टेस्ट</p>
-          </div>
+  }
+  // PW-Style WhatsApp Doubt button
+  testDoubtHTML += `
+    <div class="material-card" style="border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.05);" onclick="window.open('https://api.whatsapp.com/send?phone=919838691892&text=${encodeURIComponent('नमस्ते दिनेश सर, मुझे कक्षा 10 ' + chapter.title + ' में डाउट है, कृपया मदद करें।')}', '_blank')">
+      <div class="mc-left" style="display:flex; align-items:center; gap:12px;">
+        <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:24px;"></i>
+        <div class="mc-meta">
+          <h5 style="color:#22c55e;">सर से डाउट पूछें (Ask Doubt)</h5>
+          <p>व्हाट्सएप पर सीधा समाधान पाएं</p>
         </div>
       </div>
-    `;
-  }
-
-  materialsHTML += `</div>`;
-
-  container.innerHTML = `
-    <h3>${chapter.title}</h3>
-    <div class="chapter-materials-wrapper">
-      ${lecturesHTML}
-      ${materialsHTML}
+      <i class="fa-solid fa-arrow-up-right-from-square" style="color:#22c55e;"></i>
     </div>
   `;
+  testDoubtHTML += `</div></div>`;
+
+  container.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+      <h3 style="margin: 0;">${chapter.title}</h3>
+      <span style="font-size: 11.5px; background: rgba(255, 111, 0, 0.12); color: var(--accent-saffron); padding: 3px 8px; border-radius: 6px; font-weight: 600;">
+        PW स्टाइल बैच सामग्री
+      </span>
+    </div>
+
+    <!-- PW-Style Content Pills -->
+    <div class="pw-tab-pills" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+      <button class="btn btn-secondary pw-pill ${state.currentChapterTab === 'all' ? 'active' : ''}" onclick="filterPwTab('all')" style="padding: 6px 12px; font-size: 11.5px; border-radius: 20px;">
+        🌟 सभी (All)
+      </button>
+      <button class="btn btn-secondary pw-pill ${state.currentChapterTab === 'lectures' ? 'active' : ''}" onclick="filterPwTab('lectures')" style="padding: 6px 12px; font-size: 11.5px; border-radius: 20px;">
+        📽️ लेक्चर्स (${lectureCount})
+      </button>
+      <button class="btn btn-secondary pw-pill ${state.currentChapterTab === 'notes' ? 'active' : ''}" onclick="filterPwTab('notes')" style="padding: 6px 12px; font-size: 11.5px; border-radius: 20px;">
+        📝 नोट्स (${notesCount})
+      </button>
+      <button class="btn btn-secondary pw-pill ${state.currentChapterTab === 'dpp' ? 'active' : ''}" onclick="filterPwTab('dpp')" style="padding: 6px 12px; font-size: 11.5px; border-radius: 20px;">
+        📋 DPP (${dppCount})
+      </button>
+      <button class="btn btn-secondary pw-pill ${state.currentChapterTab === 'tests' ? 'active' : ''}" onclick="filterPwTab('tests')" style="padding: 6px 12px; font-size: 11.5px; border-radius: 20px;">
+        🧪 टेस्ट & डाउट
+      </button>
+    </div>
+
+    <div class="chapter-materials-wrapper">
+      ${lecturesHTML}
+      ${notesHTML}
+      ${dppHTML}
+      ${testDoubtHTML}
+    </div>
+  `;
+
+  // Apply tab filter if active
+  filterPwTab(state.currentChapterTab || 'all');
+}
+
+function filterPwTab(tabName) {
+  state.currentChapterTab = tabName;
+  
+  // Update button highlights
+  document.querySelectorAll('.pw-pill').forEach(btn => {
+    btn.style.backgroundColor = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  });
+
+  const activeBtn = event && event.target ? event.target.closest('.pw-pill') : null;
+  if (activeBtn) {
+    activeBtn.style.backgroundColor = 'var(--accent-saffron)';
+    activeBtn.style.color = '#fff';
+    activeBtn.style.borderColor = 'var(--accent-saffron)';
+  }
+
+  const secLectures = document.getElementById('pw-sec-lectures');
+  const secNotes = document.getElementById('pw-sec-notes');
+  const secDpp = document.getElementById('pw-sec-dpp');
+  const secTests = document.getElementById('pw-sec-tests');
+
+  if (!secLectures) return;
+
+  if (tabName === 'all') {
+    secLectures.style.display = 'block';
+    secNotes.style.display = 'block';
+    secDpp.style.display = 'block';
+    secTests.style.display = 'block';
+  } else if (tabName === 'lectures') {
+    secLectures.style.display = 'block';
+    secNotes.style.display = 'none';
+    secDpp.style.display = 'none';
+    secTests.style.display = 'none';
+  } else if (tabName === 'notes') {
+    secLectures.style.display = 'none';
+    secNotes.style.display = 'block';
+    secDpp.style.display = 'none';
+    secTests.style.display = 'none';
+  } else if (tabName === 'dpp') {
+    secLectures.style.display = 'none';
+    secNotes.style.display = 'none';
+    secDpp.style.display = 'block';
+    secTests.style.display = 'none';
+  } else if (tabName === 'tests') {
+    secLectures.style.display = 'none';
+    secNotes.style.display = 'none';
+    secDpp.style.display = 'none';
+    secTests.style.display = 'block';
+  }
 }
 
 function playLecture(videoId, title, subjectId) {
