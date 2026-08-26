@@ -3078,25 +3078,28 @@ function renderBookSubjectChapters(subjectId) {
 
 window.openBookPDF = function(pdfPath, title) {
   pdfReaderBackTab = 'books';
+  state.isPDFReaderOpen = true;
+
+  // Make sure view-notes container is active so reader is visible
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  const viewNotes = document.getElementById('view-notes');
+  if (viewNotes) viewNotes.classList.add('active');
+
   const reader = document.getElementById('pdfReaderSection');
   const readerTitle = document.getElementById('pdfTitle');
   const listSection = document.getElementById('notesListSection');
 
-  if (!reader || !readerTitle) return;
-
-  const viewBooks = document.getElementById('view-books');
-  if (viewBooks) viewBooks.style.display = 'none';
   if (listSection) listSection.style.display = 'none';
+  if (reader) reader.style.display = 'flex';
+  if (readerTitle) readerTitle.textContent = title + " - NCERT Book";
 
-  reader.style.display = 'flex';
-  readerTitle.textContent = title + " - NCERT Book";
-
-  // Load the PDF from the online server (requires internet connection)
+  // Load the PDF from the online server or local
   const onlinePdfUrl = pdfPath.startsWith('http') ? pdfPath : `${API_URL}/${pdfPath}`;
   renderPDFOffline(onlinePdfUrl);
+  window.scrollTo(0, 0);
 };
 
-window.renderPDFOffline = function(pdfUrl) {
+window.renderPDFOffline = async function(pdfUrl) {
   const container = document.getElementById('pdfContentBody');
   if (!container) return;
   
@@ -3105,7 +3108,7 @@ window.renderPDFOffline = function(pdfUrl) {
     <div style="text-align:center; padding:35px 20px; color:var(--text-secondary);">
       <div class="spinner" style="border: 3px solid rgba(255,111,0,0.1); border-top: 3px solid var(--accent-saffron); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
       किताब लोड हो रही है, कृपया प्रतीक्षा करें...
-      <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">(PDF is loading client-side inside the app)</p>
+      <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">(PDF is loading inside the app)</p>
     </div>
     <style>
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -3113,101 +3116,93 @@ window.renderPDFOffline = function(pdfUrl) {
   `;
 
   try {
-    // Configure PDF.js worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
-
-    // Load PDF using XMLHttpRequest (which supports file:// when configured)
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', pdfUrl, true);
-    xhr.responseType = 'arraybuffer';
-    
-    xhr.onload = function() {
-      if (this.status === 200 || (window.location.protocol === 'file:' && this.status === 0)) {
-        const arrayBuffer = this.response;
-        if (arrayBuffer) {
-          pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise.then(function(pdf) {
-            container.innerHTML = ''; // Clear loading spinner
-            
-            // Load and render all pages of the book chapter sequentially
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-              const pageDiv = document.createElement('div');
-              pageDiv.className = 'pdf-page-container';
-              pageDiv.style.marginBottom = '20px';
-              pageDiv.style.backgroundColor = '#ffffff';
-              pageDiv.style.borderRadius = '8px';
-              pageDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
-              pageDiv.style.overflow = 'hidden';
-              pageDiv.style.display = 'flex';
-              pageDiv.style.flexDirection = 'column';
-              pageDiv.style.alignItems = 'center';
-              pageDiv.style.padding = '10px';
-              
-              const pageLabel = document.createElement('div');
-              pageLabel.style.fontSize = '11px';
-              pageLabel.style.color = '#555555';
-              pageLabel.style.marginBottom = '5px';
-              pageLabel.textContent = `पेज ${pageNum} / ${pdf.numPages}`;
-              pageDiv.appendChild(pageLabel);
-
-              const canvas = document.createElement('canvas');
-              canvas.style.width = '100%';
-              canvas.style.height = 'auto';
-              canvas.style.borderRadius = '4px';
-              pageDiv.appendChild(canvas);
-              container.appendChild(pageDiv);
-
-              pdf.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = {
-                  canvasContext: context,
-                  viewport: viewport
-                };
-                page.render(renderContext);
-              });
-            }
-          }).catch(function(err) {
-            console.error("PDFJS render error:", err);
-            handleLoadError();
-          });
-        } else {
-          handleLoadError();
-        }
-      } else {
-        handleLoadError();
-      }
-    };
-
-    xhr.onerror = function() {
-      console.error("XHR error loading PDF");
-      handleLoadError();
-    };
-
-    xhr.send();
-
-  } catch (err) {
-    console.error("PDF.js initialization error:", err);
-    handleLoadError();
-  }
-
-  function handleLoadError() {
-    // Fallback: If it's a relative path, try rendering via online server URL
-    if (!pdfUrl.startsWith('http')) {
-      const serverPdfUrl = `https://gyanoday-learning-app.onrender.com/${pdfUrl}`;
-      renderPDFOffline(serverPdfUrl);
-    } else {
-      container.innerHTML = `
-        <div style="text-align:center; padding:30px; color:var(--accent-live);">
-          <p>पीडीएफ लोड करने में विफल! इंटरनेट कनेक्शन चेक करें या बाहरी ब्राउज़र में खोलें:</p>
-          <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="margin-top: 15px; display:inline-block; font-size:12px;">
-            <i class="fa-solid fa-up-right-from-square"></i> बाहरी ब्राउज़र में खोलें
-          </a>
-        </div>
-      `;
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
     }
+
+    let arrayBuffer = null;
+    try {
+      const resp = await fetch(pdfUrl);
+      if (resp.ok) {
+        arrayBuffer = await resp.arrayBuffer();
+      }
+    } catch(e) {
+      console.warn("Fetch failed, trying XHR", e);
+    }
+
+    if (!arrayBuffer) {
+      // Try XHR fallback
+      arrayBuffer = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', pdfUrl, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function() {
+          if (this.status === 200 || this.status === 0) resolve(this.response);
+          else reject(new Error("Status " + this.status));
+        };
+        xhr.onerror = reject;
+        xhr.send();
+      });
+    }
+
+    if (arrayBuffer && typeof pdfjsLib !== 'undefined') {
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      container.innerHTML = ''; // Clear loading spinner
+      
+      // Load and render all pages
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'pdf-page-container';
+        pageDiv.style.marginBottom = '20px';
+        pageDiv.style.backgroundColor = '#ffffff';
+        pageDiv.style.borderRadius = '8px';
+        pageDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+        pageDiv.style.overflow = 'hidden';
+        pageDiv.style.display = 'flex';
+        pageDiv.style.flexDirection = 'column';
+        pageDiv.style.alignItems = 'center';
+        pageDiv.style.padding = '10px';
+        
+        const pageLabel = document.createElement('div');
+        pageLabel.style.fontSize = '11px';
+        pageLabel.style.color = '#555555';
+        pageLabel.style.marginBottom = '5px';
+        pageLabel.textContent = `पेज ${pageNum} / ${pdf.numPages}`;
+        pageDiv.appendChild(pageLabel);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+        canvas.style.borderRadius = '4px';
+        pageDiv.appendChild(canvas);
+        container.appendChild(pageDiv);
+
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
+      }
+    } else {
+      throw new Error("No arrayBuffer or PDFJS library not available");
+    }
+  } catch(err) {
+    console.error("PDF render fallback:", err);
+    container.innerHTML = `
+      <div style="text-align:center; padding:30px; background:#fff; border-radius:12px; margin:20px 0;">
+        <h4 style="color:var(--text-primary); margin-bottom:10px;">📄 NCERT गणित पुस्तक अध्याय</h4>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">यदि इन-ऐप व्यूअर में लोड होने में समय लगे, तो सीधे खोलें या डाउनलोड करें:</p>
+        <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-size:13px; border-radius:8px; text-decoration:none;">
+          <i class="fa-solid fa-file-arrow-down"></i> PDF सीधे खोलें / डाउनलोड करें
+        </a>
+      </div>
+    `;
   }
 };
 
