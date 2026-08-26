@@ -1380,21 +1380,17 @@ function setupChatForm() {
 // NOTES & PDF READER
 // ==========================================================================
 function initNotesExplorer() {
-  if (state.pendingPDFToOpen) {
-    const pending = state.pendingPDFToOpen;
-    state.pendingPDFToOpen = null;
-    if (pending.type === 'dpp') {
-      openDppPDF(pending.subId, pending.chId, pending.dppId, 'batches');
-    } else {
-      openNotesPDF(pending.subId, pending.chId, pending.noteId, 'batches');
-    }
+  if (state.isPDFReaderOpen) {
     return;
   }
 
-  document.getElementById('notesListSection').style.display = 'block';
-  document.getElementById('pdfReaderSection').style.display = 'none';
+  const listSection = document.getElementById('notesListSection');
+  const reader = document.getElementById('pdfReaderSection');
+  if (listSection) listSection.style.display = 'block';
+  if (reader) reader.style.display = 'none';
 
   const grid = document.getElementById('notesGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   Object.keys(mockData.subjects).forEach(subId => {
@@ -1405,7 +1401,7 @@ function initNotesExplorer() {
       if (ch.notes && ch.notes.length > 0) {
         ch.notes.forEach(note => {
           notesHTML += `
-            <div class="note-item-link" onclick="openNotesPDF('${subId}', '${ch.id}', '${note.id}')">
+            <div class="note-item-link" onclick="openNotesPDF('${subId}', '${ch.id}', '${note.id}', 'notes')">
               <span>📄 ${ch.title.split(':')[0]} नोट्स</span>
               <i class="fa-solid fa-chevron-right"></i>
             </div>
@@ -1473,6 +1469,7 @@ let pdfReaderBackTab = 'notes';
 
 function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
   pdfReaderBackTab = fromTab;
+  state.isPDFReaderOpen = true;
   
   const subject = mockData.subjects[subId];
   if (!subject) return;
@@ -1486,10 +1483,14 @@ function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
   const viewNotes = document.getElementById('view-notes');
   if (viewNotes) viewNotes.classList.add('active');
 
-  document.getElementById('notesListSection').style.display = 'none';
+  const listSection = document.getElementById('notesListSection');
   const reader = document.getElementById('pdfReaderSection');
-  reader.style.display = 'flex';
-  document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
+  const titleEl = document.getElementById('pdfTitle');
+  const bodyEl = document.getElementById('pdfContentBody');
+
+  if (listSection) listSection.style.display = 'none';
+  if (reader) reader.style.display = 'flex';
+  if (titleEl) titleEl.textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${note.title})`;
 
   if (!state.completedLectures) state.completedLectures = [];
   const itemId = `${subId}_${noteId}`;
@@ -1498,15 +1499,17 @@ function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
     saveState();
   }
 
-  if (note.content.startsWith('/uploads/')) {
+  if (note.content && note.content.startsWith('/uploads/')) {
     const fullPdfUrl = `${API_URL}${note.content}`;
     renderPDFOffline(fullPdfUrl);
   } else {
-    document.getElementById('pdfContentBody').innerHTML = `
-      <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-        ${note.content}
-      </div>
-    `;
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+          ${note.content || '<p>नोट्स जल्द ही उपलब्ध होंगे।</p>'}
+        </div>
+      `;
+    }
   }
 
   window.scrollTo(0, 0);
@@ -1516,6 +1519,7 @@ window.openNotesPDF = openNotesPDF;
 
 window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
   pdfReaderBackTab = fromTab;
+  state.isPDFReaderOpen = true;
 
   const subject = mockData.subjects[subId];
   if (!subject) return;
@@ -1529,10 +1533,14 @@ window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
   const viewNotes = document.getElementById('view-notes');
   if (viewNotes) viewNotes.classList.add('active');
 
-  document.getElementById('notesListSection').style.display = 'none';
+  const listSection = document.getElementById('notesListSection');
   const reader = document.getElementById('pdfReaderSection');
-  reader.style.display = 'flex';
-  document.getElementById('pdfTitle').textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${dpp.title})`;
+  const titleEl = document.getElementById('pdfTitle');
+  const bodyEl = document.getElementById('pdfContentBody');
+
+  if (listSection) listSection.style.display = 'none';
+  if (reader) reader.style.display = 'flex';
+  if (titleEl) titleEl.textContent = `${subject.title} - ${chapter.title.split(':')[0]} (${dpp.title})`;
 
   if (!state.completedLectures) state.completedLectures = [];
   const itemId = `${subId}_${dppId}`;
@@ -1541,22 +1549,27 @@ window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
     saveState();
   }
 
-  if (dpp.content.startsWith('/uploads/')) {
+  if (dpp.content && dpp.content.startsWith('/uploads/')) {
     const fullPdfUrl = `${API_URL}${dpp.content}`;
     renderPDFOffline(fullPdfUrl);
   } else {
-    document.getElementById('pdfContentBody').innerHTML = `
-      <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-        ${dpp.content}
-      </div>
-    `;
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+          ${dpp.content || '<p>DPP शीट जल्द ही अपलोड होगी।</p>'}
+        </div>
+      `;
+    }
   }
 
   window.scrollTo(0, 0);
 };
 
 function closePDFReader() {
-  document.getElementById('pdfReaderSection').style.display = 'none';
+  state.isPDFReaderOpen = false;
+  const reader = document.getElementById('pdfReaderSection');
+  if (reader) reader.style.display = 'none';
+
   if (pdfReaderBackTab === 'books') {
     switchTab('books');
   } else if (pdfReaderBackTab === 'batches') {
@@ -1565,6 +1578,8 @@ function closePDFReader() {
     switchTab('dpp');
   } else {
     switchTab('notes');
+    const listSection = document.getElementById('notesListSection');
+    if (listSection) listSection.style.display = 'block';
   }
 }
 
