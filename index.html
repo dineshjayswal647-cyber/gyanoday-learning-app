@@ -52,7 +52,11 @@
       </a>
       <a href="#notes" class="nav-item" data-tab="notes">
         <i class="fa-solid fa-file-pdf"></i>
-        <span>फ्री नोट्स (PDFs)</span>
+        <span>क्लास नोट्स (PDFs)</span>
+      </a>
+      <a href="#dpp" class="nav-item" data-tab="dpp">
+        <i class="fa-solid fa-file-signature"></i>
+        <span>डेली DPP (अभ्यास)</span>
       </a>
       <a href="#quiz" class="nav-item" data-tab="quiz">
         <i class="fa-solid fa-pen-to-square"></i>
@@ -194,6 +198,11 @@
             <div class="nav-card-icon eng-color">📖</div>
             <h4>अंग्रेजी</h4>
             <p>ग्रामर व चैप्टर्स</p>
+          </div>
+          <div class="nav-card" onclick="switchTab('dpp')">
+            <div class="nav-card-icon" style="background: rgba(255, 111, 0, 0.15); color: var(--accent-saffron);">📋</div>
+            <h4>डेली DPP</h4>
+            <p>अभ्यास प्रश्न पत्र</p>
           </div>
           <div class="nav-card" onclick="switchTab('live')">
             <div class="nav-card-icon live-color">🔴</div>
@@ -379,6 +388,26 @@
           </div>
           <div class="pdf-content-body" id="pdfContentBody">
             <!-- Rich HTML note content loaded dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DPP (DAILY PRACTICE PROBLEMS) SCREEN ================= -->
+      <section class="tab-content" id="view-dpp">
+        <div class="notes-explorer" id="dppListSection">
+          <div class="search-notes-header" style="background: linear-gradient(135deg, rgba(255, 111, 0, 0.15), rgba(255, 153, 51, 0.05)); border: 1px solid rgba(255, 111, 0, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h2 style="color: var(--accent-saffron); margin: 0 0 6px 0; font-size: 20px;"><i class="fa-solid fa-file-signature"></i> 📋 डेली प्रैक्टिस पेपर (DPP Explorer)</h2>
+                <p style="color: var(--text-secondary); margin: 0; font-size: 13px;">कक्षा 10 यूपी बोर्ड - अध्याय-वार दैनिक अभ्यास प्रश्न पत्र (हल सहित)।</p>
+              </div>
+              <span style="background: var(--accent-saffron); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                PW स्टाइल DPP सिस्टम
+              </span>
+            </div>
+          </div>
+          <div class="notes-grid" id="dppGrid">
+            <!-- Dynamically populated subjects & DPPs -->
           </div>
         </div>
       </section>

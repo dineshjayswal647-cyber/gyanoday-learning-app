@@ -685,6 +685,7 @@ function handleRouting() {
     batches: 'क्लासरूम और बैचेस',
     live: 'लाइव क्लास रूम 🔴',
     notes: 'हस्तलिखित नोट्स (PDFs)',
+    dpp: 'डेली प्रैक्टिस पेपर (DPP 📋)',
     quiz: 'ऑनलाइन टेस्ट सीरीज (Quizzes)',
     profile: 'मेरा प्रोफाइल (Dinesh)',
     admin: 'एडमिन कंट्रोल पैनल',
@@ -700,6 +701,8 @@ function handleRouting() {
     initLiveClassroom();
   } else if (hash === 'notes') {
     initNotesExplorer();
+  } else if (hash === 'dpp') {
+    initDppExplorer();
   } else if (hash === 'quiz') {
     initQuizExplorer();
   } else if (hash === 'profile') {
@@ -1426,6 +1429,46 @@ function initNotesExplorer() {
   });
 }
 
+function initDppExplorer() {
+  const grid = document.getElementById('dppGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  Object.keys(mockData.subjects).forEach(subId => {
+    const subject = mockData.subjects[subId];
+    
+    let dppHTML = '';
+    subject.chapters.forEach(ch => {
+      if (ch.dpps && ch.dpps.length > 0) {
+        ch.dpps.forEach(dpp => {
+          dppHTML += `
+            <div class="note-item-link" onclick="openDppPDF('${subId}', '${ch.id}', '${dpp.id}', 'dpp')" style="display:flex; justify-content:space-between; align-items:center; border-left: 3px solid var(--accent-saffron); margin-bottom:6px;">
+              <div>
+                <span style="font-weight:600; display:block; color:var(--text-primary);">📋 ${dpp.title}</span>
+                <small style="font-size:11px; color:var(--text-secondary);">${ch.title.split(':')[0]}</small>
+              </div>
+              <span class="btn btn-secondary" style="font-size:11px; padding:4px 10px; border-radius:12px;">हल करें <i class="fa-solid fa-chevron-right"></i></span>
+            </div>
+          `;
+        });
+      }
+    });
+
+    if (dppHTML === '') {
+      dppHTML = `<p style="font-size:12px; color: var(--text-muted); padding: 8px;">इस विषय की DPP जल्द ही अपलोड होगी।</p>`;
+    }
+
+    grid.innerHTML += `
+      <div class="notes-subject-block" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 16px;">
+        <h3 style="margin-top:0; font-size:16px; color:var(--text-primary);"><span style="font-size:20px;">${subject.icon}</span> ${subject.title}</h3>
+        <div class="notes-links-list" style="display: flex; flex-direction: column; gap: 6px;">
+          ${dppHTML}
+        </div>
+      </div>
+    `;
+  });
+}
+
 let pdfReaderBackTab = 'notes';
 
 function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
@@ -1504,6 +1547,8 @@ function closePDFReader() {
     if (viewBooks) viewBooks.style.display = 'block';
   } else if (pdfReaderBackTab === 'batches') {
     switchTab('batches');
+  } else if (pdfReaderBackTab === 'dpp') {
+    switchTab('dpp');
   } else {
     document.getElementById('notesListSection').style.display = 'block';
   }
