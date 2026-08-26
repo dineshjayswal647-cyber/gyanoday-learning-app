@@ -1041,11 +1041,7 @@ function renderChapterContent(chapter) {
 }
 
 function playLecture(videoId, title, subjectId) {
-  const liveTab = mockData.liveClasses[0];
-  liveTab.title = title;
-  liveTab.videoId = videoId;
-  liveTab.teacher = mockData.subjects[subjectId].teacher;
-  liveTab.subject = subjectId;
+  state.currentPlayingLecture = { videoId, title, subjectId };
 
   if (!state.completedLectures) state.completedLectures = [];
   const itemId = `${subjectId}_${videoId}`;
@@ -1060,9 +1056,6 @@ function playLecture(videoId, title, subjectId) {
 // ==========================================================================
 // LIVE CLASS & SIMULATED CHAT
 // ==========================================================================
-// ==========================================================================
-// LIVE CLASS & SIMULATED CHAT
-// ==========================================================================
 async function initLiveClassroom() {
   const videoPlayer = document.getElementById('liveVideoPlayer');
   const activeContainer = document.getElementById('activeLiveClassContainer');
@@ -1070,6 +1063,46 @@ async function initLiveClassroom() {
   
   if (!videoPlayer || !activeContainer || !offlineContainer) return;
 
+  // 1. If user clicked a recorded lecture, play that specific lecture
+  if (state.currentPlayingLecture) {
+    const lecture = state.currentPlayingLecture;
+    offlineContainer.style.display = 'none';
+    activeContainer.style.display = 'block';
+
+    document.getElementById('liveClassTitle').textContent = lecture.title;
+    const subTitle = mockData.subjects[lecture.subjectId] ? mockData.subjects[lecture.subjectId].title : 'रिकॉर्डेड क्लास';
+    document.getElementById('liveClassInstructor').innerHTML = `
+      <span>दिनेश सर द्वारा संचालित | विषय: ${subTitle}</span>
+      <button onclick="state.currentPlayingLecture = null; switchTab('batches');" style="margin-left: 10px; background: none; border: 1px solid var(--accent-saffron); color: var(--accent-saffron); padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+        <i class="fa-solid fa-arrow-left"></i> वापस क्लास में जाएं
+      </button>
+    `;
+    
+    document.getElementById('liveWatchingCount').textContent = 'रिकॉर्डेड';
+
+    // Embed URL with Origin/Referer parameters to prevent Error 150 / 153
+    videoPlayer.innerHTML = `
+      <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden;">
+        <iframe src="https://www.youtube-nocookie.com/embed/${lecture.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&enablejsapi=1&origin=https://gyanoday-learning-app.onrender.com" 
+                title="DJ Learning Academy Lecture" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+        </iframe>
+      </div>
+      <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="https://www.youtube.com/watch?v=${lecture.videoId}" target="_blank" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+          <i class="fa-brands fa-youtube" style="color: #ef4444; font-size: 16px;"></i> यूट्यूब पर खोलें (यदि 153 एरर दिखे)
+        </a>
+      </div>
+    `;
+
+    const chatBox = document.getElementById('liveChatMessages');
+    if (chatBox) chatBox.innerHTML = '<p style="padding:10px; font-size:12px; color:var(--text-secondary);">यह रिकॉर्डेड क्लास है। कोई प्रश्न हो तो कमेंट या व्हाट्सएप पर पूछें।</p>';
+    return;
+  }
+
+  // 2. Otherwise, check if admin is running a live stream
   try {
     const response = await fetch(`${API_URL}/api/live/status`);
     if (response.ok) {
@@ -1086,11 +1119,19 @@ async function initLiveClassroom() {
         document.getElementById('liveWatchingCount').textContent = liveClass.watchingCount || '10';
 
         videoPlayer.innerHTML = `
-          <iframe src="https://www.youtube.com/embed/${liveClass.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1" 
-                  title="DJ Learning Academy Live Class" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowfullscreen>
-          </iframe>
+          <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden;">
+            <iframe src="https://www.youtube-nocookie.com/embed/${liveClass.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&enablejsapi=1&origin=https://gyanoday-learning-app.onrender.com" 
+                    title="DJ Learning Academy Live Class" 
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+            </iframe>
+          </div>
+          <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="https://www.youtube.com/watch?v=${liveClass.videoId}" target="_blank" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+              <i class="fa-brands fa-youtube" style="color: #ef4444; font-size: 16px;"></i> यूट्यूब पर देखें (यदि 153 एरर दिखे)
+            </a>
+          </div>
         `;
 
         initLiveChat(liveClass.messages, liveClass.enableSimulation);
