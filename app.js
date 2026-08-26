@@ -1472,18 +1472,20 @@ function initDppExplorer() {
 let pdfReaderBackTab = 'notes';
 
 function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
-  if (window.location.hash !== '#notes') {
-    state.pendingPDFToOpen = { subId, chId, noteId, type: 'note' };
-    pdfReaderBackTab = fromTab;
-    switchTab('notes');
-    return;
-  }
-
-  const subject = mockData.subjects[subId];
-  const chapter = subject.chapters.find(c => c.id === chId);
-  const note = chapter.notes.find(n => n.id === noteId);
-
   pdfReaderBackTab = fromTab;
+  
+  const subject = mockData.subjects[subId];
+  if (!subject) return;
+  const chapter = subject.chapters.find(c => c.id === chId);
+  if (!chapter) return;
+  const note = chapter.notes.find(n => n.id === noteId);
+  if (!note) return;
+
+  // Activate notes view container
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  const viewNotes = document.getElementById('view-notes');
+  if (viewNotes) viewNotes.classList.add('active');
+
   document.getElementById('notesListSection').style.display = 'none';
   const reader = document.getElementById('pdfReaderSection');
   reader.style.display = 'flex';
@@ -1500,26 +1502,33 @@ function openNotesPDF(subId, chId, noteId, fromTab = 'notes') {
     const fullPdfUrl = `${API_URL}${note.content}`;
     renderPDFOffline(fullPdfUrl);
   } else {
-    document.getElementById('pdfContentBody').innerHTML = note.content;
+    document.getElementById('pdfContentBody').innerHTML = `
+      <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+        ${note.content}
+      </div>
+    `;
   }
+
+  window.scrollTo(0, 0);
 }
 
 window.openNotesPDF = openNotesPDF;
 
 window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
-  if (window.location.hash !== '#notes') {
-    state.pendingPDFToOpen = { subId, chId, dppId, type: 'dpp' };
-    pdfReaderBackTab = fromTab;
-    switchTab('notes');
-    return;
-  }
+  pdfReaderBackTab = fromTab;
 
   const subject = mockData.subjects[subId];
+  if (!subject) return;
   const chapter = subject.chapters.find(c => c.id === chId);
+  if (!chapter) return;
   const dpp = chapter.dpps ? chapter.dpps.find(d => d.id === dppId) : null;
   if (!dpp) return;
 
-  pdfReaderBackTab = fromTab;
+  // Activate notes view container
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  const viewNotes = document.getElementById('view-notes');
+  if (viewNotes) viewNotes.classList.add('active');
+
   document.getElementById('notesListSection').style.display = 'none';
   const reader = document.getElementById('pdfReaderSection');
   reader.style.display = 'flex';
@@ -1536,21 +1545,26 @@ window.openDppPDF = function(subId, chId, dppId, fromTab = 'batches') {
     const fullPdfUrl = `${API_URL}${dpp.content}`;
     renderPDFOffline(fullPdfUrl);
   } else {
-    document.getElementById('pdfContentBody').innerHTML = dpp.content;
+    document.getElementById('pdfContentBody').innerHTML = `
+      <div style="background:#ffffff; color:#1e293b; padding:24px; border-radius:12px; line-height:1.8; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+        ${dpp.content}
+      </div>
+    `;
   }
+
+  window.scrollTo(0, 0);
 };
 
 function closePDFReader() {
   document.getElementById('pdfReaderSection').style.display = 'none';
   if (pdfReaderBackTab === 'books') {
-    const viewBooks = document.getElementById('view-books');
-    if (viewBooks) viewBooks.style.display = 'block';
+    switchTab('books');
   } else if (pdfReaderBackTab === 'batches') {
     switchTab('batches');
   } else if (pdfReaderBackTab === 'dpp') {
     switchTab('dpp');
   } else {
-    document.getElementById('notesListSection').style.display = 'block';
+    switchTab('notes');
   }
 }
 
