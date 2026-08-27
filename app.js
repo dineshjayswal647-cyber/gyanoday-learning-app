@@ -3093,9 +3093,9 @@ window.openBookPDF = function(pdfPath, title) {
   if (reader) reader.style.display = 'flex';
   if (readerTitle) readerTitle.textContent = title + " - NCERT Book";
 
-  // Load the PDF from the online server or local
-  const onlinePdfUrl = pdfPath.startsWith('http') ? pdfPath : `${API_URL}/${pdfPath}`;
-  renderPDFOffline(onlinePdfUrl);
+  // Load the PDF from local asset if running in app, or from API_URL if web
+  const targetPdfUrl = pdfPath.startsWith('http') ? pdfPath : (window.location.protocol === 'file:' ? pdfPath : `${API_URL}/${pdfPath}`);
+  renderPDFOffline(targetPdfUrl);
   window.scrollTo(0, 0);
 };
 

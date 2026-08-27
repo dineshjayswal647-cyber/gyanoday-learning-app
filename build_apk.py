@@ -307,11 +307,6 @@ public class MainActivity extends AppCompatActivity {
     assets_dir = os.path.join(PROJECT_DIR, "app", "src", "main", "assets")
     os.makedirs(assets_dir, exist_ok=True)
     
-    # Clean up the books folder inside assets if it exists
-    books_dest = os.path.join(assets_dir, "books")
-    if os.path.exists(books_dest):
-        shutil.rmtree(books_dest)
-
     # Copy files to assets
     files_to_copy = [
         "index.html", "style.css", "app.js", "mockData.js", 
@@ -323,10 +318,14 @@ public class MainActivity extends AppCompatActivity {
         if os.path.exists(src):
             shutil.copy(src, os.path.join(assets_dir, file_name))
 
-    # We no longer copy the books folder into the APK assets.
-    # This keeps the APK size extremely low (approx. 4.7 MB), 
-    # and forces the books to be loaded from the online server over the internet.
-    pass
+    # Copy books folder into APK assets for instant 100% offline access
+    books_src = os.path.join(r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app", "books")
+    books_dest = os.path.join(assets_dir, "books")
+    if os.path.exists(books_src):
+        if os.path.exists(books_dest):
+            shutil.rmtree(books_dest)
+        shutil.copytree(books_src, books_dest)
+        print("Copied all NCERT book PDFs into APK assets!")
 
     # Copy logo.jpg as launcher icon
     src_logo = r"C:\Users\dines\.gemini\antigravity\scratch\gyanoday-learning-app\logo.jpg"
